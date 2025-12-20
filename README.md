@@ -104,7 +104,7 @@ snap-map/
 ---
 
 # 🤝 Contributing
-- Submit PRs after reading CONTRIBUTING.md  
+- Submit PRs after reading [CONTRIBUTING.md](CONTRIBUTING.md)  
 
 ---
 
