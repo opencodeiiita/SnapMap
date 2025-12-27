@@ -1,1 +1,47 @@
-canva link : https://www.canva.com/design/DAG8sT7WibY/LT_fI_Vpn45f7CQ-y4bFTQ/edit?utm_content=DAG8sT7WibY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+SNAP-MAP – UI Design System
+
+Fonts:
+- Primary Font: Inter
+- Heading Weight: SemiBold
+- Body Weight: Regular
+- Caption Weight: Medium
+
+Text Styles:
+- Heading / H1: 24–28 px, Inter SemiBold
+- Heading / H2: 18–20 px, Inter Medium
+- Body / Regular: 14–16 px, Inter Regular
+- Caption / Small: 12 px, Inter Medium
+
+Colors:
+- Primary: #3B82F6 (Blue)
+- Secondary: #93C5FD (Light Blue)
+- Background: #FFFFFF (White)
+- Surface: #F9FAFB (Light Gray)
+- Text Primary: #111827 (Dark Gray)
+- Text Secondary: #6B7280 (Gray)
+- Error: #EF4444 (Red) and Black
+
+Icons:
+- Style: Outline
+- Source: Material Icons / Figma Built-in Icons
+- Size: 24 px or have set accordingly
+- Color: Text Primary or Primary
+
+Screen Size:
+- Mobile Resolution: 360 × 800 (Android)
+
+Design Principles:
+- Consistent typography across all screens
+- Reusable components (buttons, cards, headers)
+- Auto Layout used for spacing consistency
+- Minimal, clean, campus-friendly UI
+
+Notes:
+- Community UI kits were used only as layout inspiration.
+- All screens were customized to maintain consistent branding and sizing.
+
+
+
+Figma Link: https://www.figma.com/design/OF2qloXgWJfh10m8KenhO0/SNAP-MAP-UI-UX-Design?node-id=0-1&t=NoFh7odUcadHKy8D-1
+
+** This was the worst task tbh should be of 100 points or even more **
