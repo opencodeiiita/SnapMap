@@ -8,3 +8,6 @@ Colour Pallete - #FF5069 (buttons)
                  #FFEAED (background)
 
 Figma Link(for set 1): https://www.figma.com/design/pEn8ouSCBzU1gD0GHbIvuF/Cupid-Arrow-Dating-App--iOS-Android-UI-UX--Community-?node-id=0-1&t=CWRVv9e46zb4YJLp-1
+
+
+Figma Link(for set 3) : https://www.figma.com/design/x9Yi2gayOXOS4FRWuyBcjQ/Cupid-Arrow-Dating-App--iOS-Android-UI-UX--Community-?node-id=0-1&t=dDY1VagxjCvoa0p3-1
