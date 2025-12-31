@@ -1,4 +1,4 @@
-const { verifyToken } = require("@clerk/clerk-sdk-node");
+import { verifyToken } from "@clerk/clerk-sdk-node";
 
 async function authMiddleware(req, res, next) {
   try {
@@ -17,4 +17,4 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-module.exports = authMiddleware;
+export default authMiddleware;

@@ -1,15 +1,15 @@
-const express = require("express");
-const dotenv = require("dotenv");
+import express from "express";
+import dotenv from "dotenv";
 dotenv.config();
 
 //-----db connection--------
-const connectDB = require("./config/db");
+import connectDB from "./config/db.js";
 connectDB();
 //------------------------------------------------------------
 const app = express();
 app.use(express.json());
 
-const router = require("../backend/v1")
+import router from "./v1.js";
 
 app.use("/api/v1", router);
 

@@ -1,4 +1,4 @@
-const User = require("../models/User")
+import User from "../models/User.js";
 
 const registerUser = async(req,res) => {
     try {
@@ -33,4 +33,4 @@ const registerUser = async(req,res) => {
     }
 }
 
-module.exports = {registerUser}
+export { registerUser };

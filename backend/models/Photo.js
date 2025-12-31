@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const PhotoSchema = new mongoose.Schema({
   userId: {
@@ -38,4 +38,4 @@ const PhotoSchema = new mongoose.Schema({
 
 PhotoSchema.index({ location: '2dsphere' });
 
-module.exports = mongoose.model('Photo', PhotoSchema);
+export default mongoose.model('Photo', PhotoSchema);

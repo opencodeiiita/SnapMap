@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const EventSchema = new mongoose.Schema({
   name: {
@@ -31,4 +31,4 @@ const EventSchema = new mongoose.Schema({
 
 EventSchema.index({ locationCenter: '2dsphere' });
 
-module.exports = mongoose.model('Event', EventSchema);
+export default mongoose.model('Event', EventSchema);

@@ -1,6 +1,6 @@
-const express = require("express");
-const authMiddleware = require("../middleware/authentication");
-const {registerUser} = require("../controllers/authController")
+import express from "express";
+import authMiddleware from "../middleware/authentication.js";
+import { registerUser } from "../controllers/authController.js";
 const router = express.Router();
 
 router.post("/login", (req, res) => {
@@ -9,4 +9,4 @@ router.post("/login", (req, res) => {
 
 router.post("/signup", authMiddleware, registerUser);
 
-module.exports = router;
+export default router;
