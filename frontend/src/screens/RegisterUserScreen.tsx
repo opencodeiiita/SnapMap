@@ -4,16 +4,17 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
   Alert,
   ActivityIndicator,
   Platform,
   Modal,
 } from "react-native";
+import RegisterUserStyle from "../styles/RegisterUserStyle";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenProps } from "../types";
+import Constants from "expo-constants";
 
 // Enum values - Gender from backend model
 const GENDER_OPTIONS = ["male", "female", "others"];
@@ -21,15 +22,10 @@ const GENDER_OPTIONS = ["male", "female", "others"];
 // Year options - frontend enum
 const YEAR_OPTIONS = ["1st", "2nd", "3rd", "4th", "5th", "Graduate", "Other"];
 
-// For Android emulator, use 10.0.2.2 instead of localhost
-// For iOS simulator, localhost works fine
-// For physical devices, use your computer's IP address
-const API_BASE_URL = __DEV__
-  ? Platform.OS === "android"
-    ? "http://10.0.2.2:5000"
-    : "http://192.168.29.11:5000"
-  : "https://your-production-url.com";
+// Use API base URL from environment variable
+export const API_BASE_URL = Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 
+const styles = RegisterUserStyle;
 const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) => {
   const { user } = useUser();
   const { getToken } = useAuth();
@@ -388,149 +384,3 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
 };
 
 export default RegisterUserScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFF5F5",
-  },
-  contentContainer: {
-    padding: 20,
-    paddingTop: 40,
-  },
-  header: {
-    marginTop: 20,
-    marginBottom: 30,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-  },
-  form: {
-    gap: 20,
-  },
-  inputGroup: {
-    marginBottom: 4,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
-  },
-  required: {
-    color: "#FF4444",
-  },
-  input: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: "#333",
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-  },
-  inputError: {
-    borderColor: "#FF4444",
-  },
-  errorText: {
-    color: "#FF4444",
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 4,
-  },
-  submitButton: {
-    backgroundColor: "#FF4444",
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  submitButtonDisabled: {
-    opacity: 0.6,
-  },
-  submitButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-    letterSpacing: 0.5,
-  },
-  dropdown: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  dropdownText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  dropdownPlaceholder: {
-    color: "#999",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  dropdownModal: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    width: "80%",
-    maxWidth: 400,
-    maxHeight: "60%",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  dropdownOption: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  dropdownOptionSelected: {
-    backgroundColor: "#FFF5F5",
-  },
-  dropdownOptionText: {
-    fontSize: 16,
-    color: "#333",
-  },
-  dropdownOptionTextSelected: {
-    color: "#FF4444",
-    fontWeight: "600",
-  },
-});

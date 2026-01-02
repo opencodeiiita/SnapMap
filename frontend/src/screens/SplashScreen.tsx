@@ -2,6 +2,9 @@ import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { useAuth } from "@clerk/clerk-expo";
 import type { ScreenProps } from "../types";
+import SplashStyle from "../styles/SplashStyle";
+
+const styles = SplashStyle;
 
 const SplashScreen = ({ navigation }: ScreenProps<"SplashScreen">) => {
   const { isSignedIn, isLoaded } = useAuth();
@@ -33,23 +36,3 @@ const SplashScreen = ({ navigation }: ScreenProps<"SplashScreen">) => {
 };
 
 export default SplashScreen;
-
-const styles = StyleSheet.create({
-  root: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    flex: 1,
-  },
-  icon: {
-    width: 120,
-    height: 120,
-    marginBottom: 24,
-  },
-  text: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#000",
-    letterSpacing: 2,
-  },
-});

@@ -1,6 +1,9 @@
 import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import type { ScreenProps } from "../types";
+import ProfileStyle from "../styles/ProfileStyle";
+
+const styles = ProfileStyle;
 
 const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
   return (
@@ -15,17 +18,3 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
 };
 
 export default ProfileScreen;
-
-const styles = StyleSheet.create({
-  root: {
-    textAlign: "center",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    flex: 1,
-  },
-  text: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-});

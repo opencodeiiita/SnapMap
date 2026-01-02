@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import * as Location from "expo-location";
 import type { ScreenProps } from "../types";
 import { FontAwesome } from "@expo/vector-icons";
+import MapStyle from "../styles/MapStyle";
+
+const styles = MapStyle;
 
 const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
   const [location, setLocation] = useState<{
@@ -71,40 +74,3 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
 };
 
 export default MapScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    width: "100%",
-    height: "100%",
-  },
-  loading: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  CameraButton: {
-    position: "absolute",
-    bottom: 100,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    backgroundColor: "#DB001A",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  HomeButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    backgroundColor: "#DB001A",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

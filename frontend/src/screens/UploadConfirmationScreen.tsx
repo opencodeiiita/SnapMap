@@ -1,6 +1,9 @@
 import React from "react";
 import { Alert, Button, Image, StyleSheet, View } from "react-native";
 import type { ScreenProps } from "../types";
+import UploadConfirmationStyle from "../styles/UploadConfirmationStyle";
+
+const styles = UploadConfirmationStyle;
 
 const UploadConfirmationScreen = ({
   navigation,
@@ -47,31 +50,3 @@ const UploadConfirmationScreen = ({
 };
 
 export default UploadConfirmationScreen;
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: "#000",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 16,
-    gap: 16,
-  },
-  text: {
-    fontSize: 18,
-    marginBottom: 10,
-    color: "#fff",
-    textAlign: "center",
-  },
-  preview: {
-    width: "100%",
-    flex: 1,
-    borderRadius: 12,
-  },
-  actions: {
-    width: "100%",
-    gap: 12,
-
-    marginBottom: 10,
-  },
-});

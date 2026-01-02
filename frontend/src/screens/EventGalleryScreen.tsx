@@ -1,6 +1,9 @@
 import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import type { ScreenProps } from "../types";
+import EventGalleryStyle from "../styles/EventGalleryStyle";
+
+const styles = EventGalleryStyle;
 
 const EventGalleryScreen = ({
   navigation,
@@ -17,17 +20,3 @@ const EventGalleryScreen = ({
 };
 
 export default EventGalleryScreen;
-
-const styles = StyleSheet.create({
-  root: {
-    textAlign: "center",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    flex: 1,
-  },
-  text: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-});

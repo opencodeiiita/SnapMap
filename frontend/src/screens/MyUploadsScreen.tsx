@@ -1,6 +1,9 @@
 import React from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
 import type { ScreenProps } from "../types";
+import MyUploadsStyle from "../styles/MyUploadsStyle";
+
+const styles = MyUploadsStyle;
 
 const MyUploadsScreen = ({ navigation }: ScreenProps<"MyUploadsScreen">) => {
   return (
@@ -15,17 +18,3 @@ const MyUploadsScreen = ({ navigation }: ScreenProps<"MyUploadsScreen">) => {
 };
 
 export default MyUploadsScreen;
-
-const styles = StyleSheet.create({
-  root: {
-    textAlign: "center",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    flex: 1,
-  },
-  text: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-});
