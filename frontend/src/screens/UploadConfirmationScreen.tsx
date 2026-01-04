@@ -28,11 +28,12 @@ const UploadConfirmationScreen = ({
         return;
       }
 
-      const response = await fetch(photo.uri);
-      const blob = await response.blob();
-
       const data = new FormData();
-      data.append("image", blob as any, "photo.jpg");
+      data.append("image", {
+        uri: photo.uri,
+        type: "image/jpeg",
+        name: "photo.jpg",
+      } as any);
 
       if (location?.coords) {
         data.append("lat", location.coords.latitude.toString());
