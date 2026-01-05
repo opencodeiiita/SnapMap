@@ -1,95 +1,162 @@
-import React, { useState } from "react";
-import { View, Text, Button, Image, Alert } from "react-native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import * as Location from "expo-location";
+import type { CameraType, FlashMode } from "expo-camera";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import styles from "../styles/CameraScreen.styles";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { ScreenProps } from "../types";
+import CameraStyle from "../styles/CameraStyle";
 
-type RootStackParamList = {
-  Home: undefined;
-};
+const styles = CameraStyle;
 
-type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+export default function CameraScreen({
+  navigation,
+}: ScreenProps<"CameraScreen">) {
+  const cameraRef = useRef<CameraView | null>(null);
 
-const CameraScreen: React.FC<Props> = ({ navigation }) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const [facing, setFacing] = useState<CameraType>("back");
+  const [flash, setFlash] = useState<FlashMode>("off");
+  const [permission, requestPermission] = useCameraPermissions();
+  const [isCameraOk, setIsCameraOk] = useState(false);
 
-  // Reuse existing upload pipeline
-  const uploadPhoto = async (imageUri: string): Promise<void> => {
-    try {
-      console.log("Uploading image:", imageUri);
-      Alert.alert("Upload", "Image uploaded successfully!");
-      navigation.navigate("Home");
-    } catch (error) {
-      Alert.alert("Error", "Upload failed");
-    }
+  useEffect(() => {
+    Location.requestForegroundPermissionsAsync();
+  }, []);
+
+  /* -------------------- Permissions -------------------- */
+  if (!permission) return <View />;
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.permissionContainer}>
+        <Text style={styles.permissionText}>
+          Camera permission is required
+        </Text>
+        <TouchableOpacity
+          style={styles.permissionButton}
+          onPress={requestPermission}
+        >
+          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  /* -------------------- Helpers -------------------- */
+  const toggleCameraFacing = () => {
+    setFacing((current) => (current === "back" ? "front" : "back"));
   };
 
-  const pickFromGallery = async (): Promise<void> => {
+  const toggleFlash = () => {
+    setFlash((current) => (current === "off" ? "on" : "off"));
+  };
+
+  const ensureLocation = async () => {
+    const { status } =
+      await Location.getForegroundPermissionsAsync();
+
+    if (status === "granted") {
+      return await Location.getCurrentPositionAsync({});
+    }
+
+    return null;
+  };
+
+  /* -------------------- Camera Capture -------------------- */
+  const handleCapture = async () => {
+    if (!cameraRef.current || !isCameraOk) return;
+
+    const photo = await cameraRef.current.takePictureAsync();
+    const location = await ensureLocation();
+
+    navigation.navigate("UploadConfirmationScreen", {
+      photo,
+      location,
+    });
+  };
+
+  /* -------------------- Gallery Picker -------------------- */
+  const pickFromGallery = async () => {
     const permission =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
       Alert.alert(
         "Permission required",
-        "Gallery permission is required to upload images"
+        "Gallery permission is required"
       );
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-      setShowPreview(true);
+      navigation.navigate("UploadConfirmationScreen", {
+        photo: { uri: result.assets[0].uri },
+        location: null,
+      });
     }
   };
 
-  const confirmUpload = async (): Promise<void> => {
-    if (!selectedImage) return;
-    await uploadPhoto(selectedImage);
-    setSelectedImage(null);
-    setShowPreview(false);
-  };
-
-  // Preview screen
-  if (showPreview && selectedImage) {
-    return (
-      <View style={styles.root}>
-        <Image
-          source={{ uri: selectedImage }}
-          style={styles.previewImage}
-        />
-
-        <View style={styles.previewActions}>
-          <Button
-            title="Cancel"
-            onPress={() => setShowPreview(false)}
-          />
-          <Button title="Upload" onPress={confirmUpload} />
-        </View>
-      </View>
-    );
-  }
-
+  /* -------------------- UI -------------------- */
   return (
-    <View style={styles.root}>
-      <Text style={styles.text}>Camera Screen</Text>
+    <View style={styles.container}>
+      {/* Camera */}
+      <CameraView
+        ref={cameraRef}
+        style={styles.camera}
+        facing={facing}
+        flash={flash}
+        onCameraReady={() => setIsCameraOk(true)}
+      />
 
-      <Button title="Open Gallery" onPress={pickFromGallery} />
+      {/* Top Controls (Flash) */}
+      <View style={styles.topControls}>
+        <TouchableOpacity
+          style={styles.topButton}
+          onPress={toggleFlash}
+        >
+          <Text style={styles.topButtonText}>
+            Flash {flash === "on" ? "On" : "Off"}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-      <View style={{ marginTop: 20 }}>
-        <Button
-          title="Go Back Home"
-          onPress={() => navigation.navigate("Home")}
-        />
+      {/* Bottom Controls */}
+      <View style={styles.bottomControls}>
+        {/* Gallery (LEFT) */}
+        <TouchableOpacity
+          style={styles.sideButton}
+          onPress={pickFromGallery}
+        >
+          <Text style={styles.controlText}>Gallery</Text>
+        </TouchableOpacity>
+
+        {/* Shutter (CENTER) */}
+        <TouchableOpacity
+          style={styles.shutterOuter}
+          onPress={handleCapture}
+        >
+          <View style={styles.shutterInnerButton} />
+        </TouchableOpacity>
+
+        {/* Flip Camera (RIGHT) */}
+        <TouchableOpacity
+          style={styles.sideButton}
+          onPress={toggleCameraFacing}
+        >
+          <Text style={styles.controlText}>Flip</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
-};
-
-export default CameraScreen;
+}
