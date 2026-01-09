@@ -1,14 +1,14 @@
-import { ExpoConfig } from "@expo/config";
+import getLocalIPAddress from "./getLocalIPAddress.ts";
 
-const config: ExpoConfig = {
+const ip = getLocalIPAddress();
+
+export default {
   name: "Snap Map",
   slug: "snap-map",
   scheme: "snapmap",
   version: "1.0.0",
 
   extra: {
-    API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL,
+    API_BASE_URL: `http://${ip}:5000`,
   },
 };
-
-export default config;

@@ -1,11 +1,13 @@
 {
   "extends": "./node_modules/expo/tsconfig.base",
   "compilerOptions": {
-    "strict": false
+    "strict": false,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "env.d.ts"
-, "getLocalIPAddress.js"  ]
+    "env.d.ts",
+  ],
 }

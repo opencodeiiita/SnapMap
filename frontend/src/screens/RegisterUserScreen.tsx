@@ -76,16 +76,19 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
     setIsSubmitting(true);
 
     try {
+      console.log("inside try");
       // Check if user is authenticated
       if (!user) {
         Alert.alert("Error", "User not authenticated. Please sign in again.");
         setIsSubmitting(false);
         return;
       }
+      console.log("before get token");
 
       // Get the JWT token from Clerk
       // Try without template first, then with template if needed
       let token = await getToken();
+      console.log("after get token ", token);
       
       // If token is null, try with explicit options
       if (!token) {
@@ -95,13 +98,20 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
           console.log("Template token failed, trying without template");
         }
       }
+      console.log("after !token ", token);
+
       if (!token) {
         Alert.alert("Error", "Authentication token not available. Please sign in again.");
         setIsSubmitting(false);
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}api/v1/auth/signup`, {
+      console.log("after !!token ", token);
+
+
+      console.log(`Sending POST : ` + `${API_BASE_URL}/api/v1/auth/signup`);
+      console.log(`Bearer ${token}`);
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
