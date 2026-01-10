@@ -63,15 +63,125 @@ const CameraStyle = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
   },
-  galleryButton: {
-    backgroundColor: "rgba(0,0,0,0.5)",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+
+   /* ---------- TOP CONTROLS ---------- */
+  topControls: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    right: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  topButton: {
+    backgroundColor: "rgba(0,0,0,0.6)",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     borderRadius: 20,
-    minWidth: 80,
+  },
+
+  topButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  /* ---------- BOTTOM CONTROLS ---------- */
+  bottomControls: {
+    position: "absolute",
+    bottom: 40,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+  },
+
+  galleryButton: {
+    backgroundColor: "rgba(0,0,0,0.6)",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 22,
+  },
+
+  galleryText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  /* ---------- CAPTURE BUTTON ---------- */
+  captureOuter: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 4,
+    borderColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
+
+  captureInner: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: "#fff",
+  },
+  bottomPill: {
+  position: "absolute",
+  bottom: 36,
+  alignSelf: "center",
+  width: 300,
+  height: 72,
+  backgroundColor: "#D9D9DD",
+  borderRadius: 36,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingHorizontal: 18,
+},
+
+galleryPreview: {
+  width: 44,
+  height: 44,
+  borderRadius: 22,
+  backgroundColor: "#BFC3C9",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+previewText: {
+  fontSize: 18,
+},
+
+captureButton: {
+  width: 56,
+  height: 56,
+  borderRadius: 28,
+  backgroundColor: "#EDEDED",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+captureIcon: {
+  fontSize: 24,
+},
+
+settingsButton: {
+  width: 44,
+  height: 44,
+  borderRadius: 22,
+  backgroundColor: "#EDEDED",
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+settingsIcon: {
+  fontSize: 20,
+},
+
+
 });
 
 export default CameraStyle;

@@ -165,44 +165,53 @@ export default function CameraScreen({
   };
 
   return (
-    <View style={styles.container}>
-      <CameraView
-        ref={cameraRef}
-        style={styles.camera}
-        facing={facing}
-        flash={flash}
-        onCameraReady={() => setIsCameraOk(true)}
-      />
-      <View style={styles.controls}>
-        <View style={styles.controlsRow}>
-          <TouchableOpacity style={styles.controlButton} onPress={toggleFlash}>
-            <Text style={styles.controlText}>
-              Flash {flash === "on" ? "On" : "Off"}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={toggleCameraFacing}
-          >
-            <Text style={styles.controlText}>Flip</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.controlsRow}>
-          <TouchableOpacity
-            style={styles.galleryButton}
-            onPress={handleGalleryPick}
-          >
-            <Text style={styles.controlText}>Gallery</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.shutterOuter}
-            onPress={handletheCapture}
-          >
-            <View style={styles.shutterInnerButton} />
-          </TouchableOpacity>
-          <View style={styles.galleryButton} />
-        </View>
-      </View>
+  <View style={styles.container}>
+    <CameraView
+      ref={cameraRef}
+      style={styles.camera}
+      facing={facing}
+      flash={flash}
+      onCameraReady={() => setIsCameraOk(true)}
+    />
+
+    {/* Top controls */}
+    <View style={styles.topControls}>
+      <TouchableOpacity onPress={toggleFlash} style={styles.topButton}>
+        <Text style={styles.topButtonText}>
+          ⚡ {flash === "on" ? "On" : "Off"}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={toggleCameraFacing} style={styles.topButton}>
+        <Text style={styles.topButtonText}>🔄</Text>
+      </TouchableOpacity>
     </View>
-  );
+
+    {/* Bottom pill controls */}
+    <View style={styles.bottomPill}>
+      {/* Gallery preview */}
+      <TouchableOpacity onPress={handleGalleryPick}>
+        <View style={styles.galleryPreview}>
+          <Text style={styles.previewText}>🖼️</Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* Capture button */}
+      <TouchableOpacity onPress={handletheCapture}>
+        <View style={styles.captureButton}>
+          <Text style={styles.captureIcon}>📷</Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* Settings */}
+      <TouchableOpacity onPress={() => navigation.navigate("SettingsScreen")}>
+        <View style={styles.settingsButton}>
+          <Text style={styles.settingsIcon}>⚙️</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+
+  </View>
+);
+
 }
