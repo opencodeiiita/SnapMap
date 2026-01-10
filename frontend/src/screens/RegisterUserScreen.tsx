@@ -15,6 +15,8 @@ import { useUser, useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenProps } from "../types";
 import Constants from "expo-constants";
+import LocationIcon from "../assets/icons/LocationIcon";
+import PersonIcon from "../assets/icons/PersonIcon";
 
 // Enum values - Gender from backend model
 const GENDER_OPTIONS = ["male", "female", "others"];
@@ -189,37 +191,37 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Complete Your Registration</Text>
-        <Text style={styles.subtitle}>Please fill in your details to continue</Text>
+      <View style={styles.headerWrapper}>
+        <LocationIcon />
+        <View style={styles.header}>
+          <Text style={styles.title}>Join SnapMap</Text>
+          <Text style={styles.subtitle}>Connect with your campus{"\n"}community and see what's{"\n"}trending nearby</Text>
+        </View>
       </View>
 
       <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>
-            Name <Text style={styles.required}>*</Text>
-          </Text>
+        <View style={[styles.inputGroup,]}>
+          <View style={styles.inputIcon}>
+            <PersonIcon />
+          </View>
           <TextInput
-            style={[styles.input, errors.name && styles.inputError]}
+            style={[styles.input, styles.inputWithLeftIcon, errors.name && styles.inputError]}
             value={formData.name}
             onChangeText={(value) => updateField("name", value)}
-            placeholder="Enter your full name"
-            placeholderTextColor="#999"
+            placeholder="Full Name"
+            placeholderTextColor="#9CA3AF"
             editable={!isSubmitting}
           />
           {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>
-            Email <Text style={styles.required}>*</Text>
-          </Text>
           <TextInput
             style={[styles.input, errors.email && styles.inputError]}
             value={formData.email}
             onChangeText={(value) => updateField("email", value)}
-            placeholder="Enter your email"
-            placeholderTextColor="#999"
+            placeholder="College Email"
+            placeholderTextColor="#9CA3AF"
             keyboardType="email-address"
             autoCapitalize="none"
             editable={!isSubmitting}
@@ -228,15 +230,12 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>
-            College Name <Text style={styles.required}>*</Text>
-          </Text>
           <TextInput
             style={[styles.input, errors.collegeName && styles.inputError]}
             value={formData.collegeName}
             onChangeText={(value) => updateField("collegeName", value)}
-            placeholder="Enter your college name"
-            placeholderTextColor="#999"
+            placeholder="College Name"
+            placeholderTextColor="#9CA3AF"
             editable={!isSubmitting}
           />
           {errors.collegeName && (
@@ -245,16 +244,27 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Gender</Text>
+          <TextInput
+            style={styles.input}
+            value={formData.phoneNumber}
+            onChangeText={(value) => updateField("phoneNumber", value)}
+            placeholder="Phone Number"
+            placeholderTextColor="#9CA3AF"
+            keyboardType="phone-pad"
+            editable={!isSubmitting}
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
           <TouchableOpacity
             style={styles.dropdown}
             onPress={() => !isSubmitting && setGenderDropdownVisible(true)}
             disabled={isSubmitting}
           >
             <Text style={[styles.dropdownText, !formData.gender && styles.dropdownPlaceholder]}>
-              {formData.gender || "Select your gender"}
+              {formData.gender ? formData.gender.charAt(0).toUpperCase() + formData.gender.slice(1) : "Gender"}
             </Text>
-            <Ionicons name="chevron-down" size={20} color="#666" />
+            <Ionicons name="chevron-down" size={20} color="#B0B0B0" />
           </TouchableOpacity>
           <Modal
             visible={genderDropdownVisible}
@@ -299,29 +309,15 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Phone Number</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.phoneNumber}
-            onChangeText={(value) => updateField("phoneNumber", value)}
-            placeholder="Enter your phone number"
-            placeholderTextColor="#999"
-            keyboardType="phone-pad"
-            editable={!isSubmitting}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Year</Text>
           <TouchableOpacity
             style={styles.dropdown}
             onPress={() => !isSubmitting && setYearDropdownVisible(true)}
             disabled={isSubmitting}
           >
             <Text style={[styles.dropdownText, !formData.year && styles.dropdownPlaceholder]}>
-              {formData.year || "Select your year"}
+              {formData.year || "Year"}
             </Text>
-            <Ionicons name="chevron-down" size={20} color="#666" />
+            <Ionicons name="chevron-down" size={20} color="#B0B0B0" />
           </TouchableOpacity>
           <Modal
             visible={yearDropdownVisible}
@@ -373,7 +369,7 @@ const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) =
           {isSubmitting ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.submitButtonText}>Complete Registration</Text>
+            <Text style={styles.submitButtonText}>Create Account</Text>
           )}
         </TouchableOpacity>
       </View>
