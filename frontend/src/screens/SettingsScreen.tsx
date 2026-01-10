@@ -71,7 +71,10 @@ const SettingsScreen = ({ navigation }: ScreenProps<"SettingsScreen">) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.headerIconButton}>
+          <TouchableOpacity
+            style={styles.headerIconButton}
+            onPress={() => navigation.navigate("ProfileScreen")}
+          >
             <Ionicons name="person-circle-outline" size={24} color="#FF8C42" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerIconButton}>
@@ -102,9 +105,7 @@ const SettingsScreen = ({ navigation }: ScreenProps<"SettingsScreen">) => {
             <SettingItem
               icon="create-outline"
               label="Edit Profile"
-              onPress={() => {
-                // Navigate to edit profile
-              }}
+              onPress={() => navigation.navigate("ProfileScreen")}
             />
             <View style={styles.divider} />
             <SettingItem
