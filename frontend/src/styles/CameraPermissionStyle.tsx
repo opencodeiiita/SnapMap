@@ -1,0 +1,95 @@
+import { StyleSheet } from "react-native";
+
+const CameraPermissionStyle = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    width: "100%",
+    paddingHorizontal: 24,
+    paddingTop: 36,
+    paddingBottom: 40,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  content: {
+    width: "100%",
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#1b1b1b",
+    marginTop: 12,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#6d6d6d",
+    textAlign: "center",
+    marginTop: 10,
+    lineHeight: 20,
+  },
+  iconHolder: {
+    marginTop: 48,
+    marginBottom: 64,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconCircle: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#ff3c63",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.25,
+    shadowRadius: 18,
+    elevation: 14,
+  },
+  buttonGroup: {
+    width: "100%",
+    gap: 12,
+  },
+  primaryButton: {
+    borderRadius: 30,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#ff3562",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 10,
+  },
+  primaryButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "700",
+    letterSpacing: 0.2,
+  },
+  secondaryButton: {
+    borderRadius: 24,
+    paddingVertical: 14,
+    backgroundColor: "#ffffff",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  secondaryButtonText: {
+    color: "#9a9a9a",
+    fontSize: 14,
+    fontWeight: "600",
+    letterSpacing: 0.2,
+  },
+});
+
+export default CameraPermissionStyle;

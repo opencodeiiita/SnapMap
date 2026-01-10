@@ -19,6 +19,7 @@
     "expo-camera": "~17.0.10",
     "expo-glass-effect": "~0.1.2",
     "expo-image-picker": "~17.0.10",
+    "expo-linear-gradient": "~14.0.1",
     "expo-location": "~19.0.8",
     "expo-secure-store": "~15.0.8",
     "expo-splash-screen": "~31.0.11",
