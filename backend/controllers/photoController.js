@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import path from "path";
+import exifr from "exifr";
 import Photo from "../models/Photo.js";
 import User from "../models/User.js";
 import uploadToAzure from "../utils/azure.js";
@@ -9,6 +10,27 @@ const buildFileName = (originalName, clerkUserId) => {
   const safeExt = ext && ext.length <= 10 ? ext : ".jpg";
   const id = crypto.randomUUID();
   return `${clerkUserId}/${Date.now()}-${id}${safeExt}`;
+};
+
+const extractExifLocation = async (buffer) => {
+  try {
+    const exif = await exifr.gps(buffer);
+    if (!exif) return null;
+
+    const { latitude, longitude } = exif;
+
+    if (
+      typeof latitude === "number" &&
+      typeof longitude === "number"
+    ) {
+      return { latitude, longitude };
+    }
+
+    return null;
+  } catch (err) {
+    console.error("❌ EXIF read error:", err.message);
+    return null;
+  }
 };
 
 export const uploadPhoto = async (req, res) => {
@@ -42,6 +64,17 @@ export const uploadPhoto = async (req, res) => {
     if (!req.file || !req.file.buffer) {
       return res.status(400).json({ message: "Photo file is required" });
     }
+
+    const exifLocation = await extractExifLocation(req.file.buffer);
+
+    if (exifLocation) {
+      console.log("📍 EXIF GPS FOUND:");
+      console.log("Latitude:", exifLocation.latitude);
+      console.log("Longitude:", exifLocation.longitude);
+    } else {
+      console.log("📭 No GPS data found in EXIF");
+    }
+
 
     const user = await User.findOne({ clerkUserId: req.userId });
     if (!user) {
