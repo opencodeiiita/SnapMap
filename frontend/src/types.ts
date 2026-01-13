@@ -1,6 +1,25 @@
-import type { CameraCapturedPicture } from "expo-camera";
-import type { LocationObject } from "expo-location";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+
+export type CameraCapturedPicture = {
+  uri: string;
+  width: number;
+  height: number;
+  base64?: string;
+  exif?: any;
+};
+
+export type LocationObject = {
+  coords: {
+    latitude: number;
+    longitude: number;
+    altitude: number | null;
+    accuracy: number | null;
+    altitudeAccuracy: number | null;
+    heading: number | null;
+    speed: number | null;
+  };
+  timestamp: number;
+  mocked?: boolean;
+};
 
 export type RootParamList = {
   SplashScreen: undefined;
@@ -11,7 +30,11 @@ export type RootParamList = {
   CameraScreen: undefined;
   MapScreen: undefined;
   UploadConfirmationScreen:
-    | { photo?: CameraCapturedPicture; location?: LocationObject | null }
+    | { 
+        photo?: CameraCapturedPicture; 
+        photos?: any[];
+        location?: LocationObject | null 
+      }
     | undefined;
   BubbleDetailsScreen: undefined;
   EventGalleryScreen: undefined;
@@ -22,7 +45,10 @@ export type RootParamList = {
   RegisterUserScreen: undefined;
 };
 
-export type ScreenProps<T extends keyof RootParamList> = NativeStackScreenProps<
-  RootParamList,
-  T
->;
+export type ScreenProps<T extends keyof RootParamList> = {
+  navigation: any;
+  route: {
+    params: RootParamList[T];
+    [key: string]: any;
+  } | any;
+};
