@@ -27,6 +27,7 @@ const UploadConfirmationScreen = ({
   const { photo, photos, location } = route.params || {};
   const { getToken } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
+  const [caption, setCaption] = useState('');
 
   // Normalize input to an array of photos
   const photosToUpload = photos || (photo ? [photo] : []);
@@ -56,7 +57,19 @@ const UploadConfirmationScreen = ({
       const endpoint = isMultiple
         ? `${API_BASE_URL}/api/v1/photos/upload-photos`
         : `${API_BASE_URL}/api/v1/photos/upload-photo`;
+      console.log("PHOTO UPLOAD DETAILS");
+      console.log("Total photos:", photosToUpload.length);
+      console.log("Caption:", caption);
+      console.log("Latitude:", location.coords.latitude);
+      console.log("Longitude:", location.coords.longitude);
+      console.log("Endpoint:", endpoint);
 
+      photosToUpload.forEach((p, index) => {
+        console.log(`Photo ${index + 1}`);
+        console.log("uri:", p.uri);
+        console.log("name:", "snap.jpg");
+        console.log("type:", "image/jpeg");
+      });
       if (isMultiple) {
         photosToUpload.forEach((p) => {
           form.append("photos[]", {
@@ -75,6 +88,7 @@ const UploadConfirmationScreen = ({
 
       form.append("lat", String(location.coords.latitude));
       form.append("lon", String(location.coords.longitude));
+      form.append("caption", caption);
 
       console.log(`Uploading ${photosToUpload.length} photos to ${endpoint}`);
 
@@ -150,6 +164,8 @@ const UploadConfirmationScreen = ({
           placeholder="Write a caption..."
           placeholderTextColor="#999"
           style={styles.captionInput}
+          value={caption}
+          onChangeText={setCaption}
         />
         <Text style={styles.emoji}>🙂</Text>
       </View>
