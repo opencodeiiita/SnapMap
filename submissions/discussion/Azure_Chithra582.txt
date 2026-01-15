@@ -1,0 +1,6 @@
+Azure Blob Upload – Design Discussion 
+
+        1.The backend currently does not implement Azure Blob Storage; it is only referenced in the README.
+        2.Maintaining a persistent WebSocket or hook-based connection for Azure uploads is not feasible since Azure Blob Storage supports only stateless HTTP(S) requests.
+        3.Even with WebSockets, backend-to-Azure uploads would still occur over HTTP, resulting in minimal latency improvement and added complexity.
+        4.Recommended approach: Use a singleton BlobServiceClient if backend uploads are required.Prefer direct client-to-Azure uploads using SAS tokens for better performance and scalability.
