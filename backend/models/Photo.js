@@ -14,6 +14,11 @@ const PhotoSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  caption: {
+    type: String,
+    default: "",
+    trim: true,
+  },
   location: {
     type: {
       type: String,
