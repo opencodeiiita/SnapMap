@@ -21,14 +21,6 @@ export type LocationObject = {
   mocked?: boolean;
 };
 
-type AppImage = {
-  uri: string;
-  width: number;
-  height: number;
-  format?: "jpg" | "jpeg" | "png"; // optional
-  exif?: Record<string, any>;
-};
-
 export type RootParamList = {
   SplashScreen: undefined;
   SignInScreen: undefined;
@@ -39,7 +31,7 @@ export type RootParamList = {
   MapScreen: undefined;
   UploadConfirmationScreen:
     | { 
-        photo?: AppImage; 
+        photo?: CameraCapturedPicture; 
         photos?: any[];
         location?: LocationObject | null 
       }
@@ -52,7 +44,7 @@ export type RootParamList = {
   ErrorScreen: undefined;
   RegisterUserScreen: undefined;
   CropScreen: 
-    | { photo?: AppImage; location?: LocationObject | null }
+    | { photo?: CameraCapturedPicture; location?: LocationObject | null }
     | undefined;
 };
 
