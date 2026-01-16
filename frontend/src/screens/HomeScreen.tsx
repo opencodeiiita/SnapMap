@@ -18,6 +18,7 @@ import { useUser } from "@clerk/clerk-expo";
 import HomeStyle from "../styles/HomeStyle";
 import BottomNavigation from "../navigation/BottomNavigation";
 import Constants from "expo-constants";
+import { useProfile } from "../context/ProfileContext";
 
 const styles = HomeStyle;
 
@@ -38,6 +39,7 @@ type PhotoMarker = {
 
 const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
   const { user } = useUser();
+  const { profile } = useProfile();
   const insets = useSafeAreaInsets();
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [photos, setPhotos] = useState<PhotoMarker[]>([]);
@@ -80,7 +82,6 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
 
   useEffect(() => {
     if (!user) return;
-
     if (!user.publicMetadata?.isRegistered) {
       navigation.navigate("RegisterUserScreen");
     }
@@ -146,7 +147,14 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
               navigation.navigate("ProfileScreen");
             }}
           >
-            <Ionicons name="person-circle-outline" size={28} color="#f43f5e" />
+            {profile?.profileImage ? (
+              <Image
+                source={{ uri: profile.profileImage }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <Ionicons name="person-circle-outline" size={28} color="#f43f5e" />
+            )}
           </TouchableOpacity>
         </View>
 

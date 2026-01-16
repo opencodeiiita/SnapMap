@@ -18,6 +18,7 @@ import { useAuth, useUser } from "@clerk/clerk-expo";
 import Constants from "expo-constants";
 import type { ScreenProps } from "../types";
 import ProfileStyle from "../styles/ProfileStyle";
+import { useProfile } from "../context/ProfileContext";
 
 const API_BASE_URL =
   Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
@@ -52,21 +53,14 @@ interface UserProfile {
 const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
   const { getToken } = useAuth();
   const { user } = useUser();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
-  // Profile data
-  const [profile, setProfile] = useState<UserProfile>({
-    name: "",
-    collegeName: "",
-    phoneNumber: "",
-    year: "",
-    profileImage: null,
-    bio: "Chasing sunsets & finals",
-  });
-  
+
+  // Profile data (GLOBAL via context)
+  const { profile, setProfile } = useProfile();
+
   // Edit form data
   const [editForm, setEditForm] = useState({
     name: "",
@@ -75,7 +69,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
     phoneNo: "",
     year: "",
   });
-  
+
   // Selected image for upload
   const [selectedImage, setSelectedImage] = useState<{
     uri: string;
@@ -101,7 +95,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
     setIsLoading(true);
     try {
       const token = await getToken();
-      
+
       if (!token) {
         // Fall back to Clerk user data if not authenticated
         if (user) {
@@ -131,7 +125,6 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
       }
 
       const data = JSON.parse(rawText);
-
 
       if (response.ok && data.user) {
         setProfile({
@@ -186,7 +179,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
     if (!permissionResult.granted) {
       Alert.alert("Permission Required", "Please allow access to your photo library.");
       return;
@@ -203,9 +196,9 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
       const asset = result.assets[0];
       const uri = asset.uri;
       const filename = uri.split("/").pop() || "profile.jpg";
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : "image/jpeg";
-      
+      const match = /(\.(\w+))$/.exec(filename);
+      const type = match ? `image/${match[2]}` : "image/jpeg";
+
       setSelectedImage({
         uri,
         type,
@@ -216,17 +209,17 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
-    
+
     try {
       const token = await getToken();
-      
+
       if (!token) {
         Alert.alert("Error", "Authentication required. Please sign in again.");
         return;
       }
 
       const formData = new FormData();
-      
+
       if (editForm.name !== profile.name) {
         formData.append("name", editForm.name);
       }
@@ -242,7 +235,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
       if (editForm.year !== profile.year) {
         formData.append("year", editForm.year);
       }
-      
+
       if (selectedImage) {
         formData.append("profileImg", {
           uri: selectedImage.uri,
@@ -261,13 +254,12 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
 
       const rawText = await response.text();
 
-      let data = {};
+      let data: any = {};
       try {
         data = rawText ? JSON.parse(rawText) : {};
       } catch {
         data = {};
       }
-
 
       if (response.ok) {
         setProfile((prev) => ({
@@ -279,7 +271,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
           year: editForm.year || prev.year,
           profileImage: data.user?.profileImage || prev.profileImage,
         }));
-        
+
         closeEditModal();
         Alert.alert("Success", "Profile updated successfully!");
       } else {
@@ -297,7 +289,8 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
     navigation.navigate("SettingsScreen");
   };
 
-  if (isLoading) {
+  // ✅ Safety guard added
+  if (isLoading || !profile) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#FF6B8A" />
@@ -309,7 +302,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <StatusBar barStyle="dark-content" />
-      
+
       {/* Header with Settings */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>

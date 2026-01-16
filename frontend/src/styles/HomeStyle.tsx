@@ -216,6 +216,12 @@ const HomeStyle = StyleSheet.create({
     fontFamily: "Inter",
     color: "#000000",
   },
+  profileImage: {
+  width: 32,
+  height: 32,
+  borderRadius: 16,
+}
+
 });
 
 export default HomeStyle;
