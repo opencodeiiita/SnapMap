@@ -10,7 +10,6 @@ import {
 import Constants from "expo-constants";
 import { useAuth } from "@clerk/clerk-expo";
 import type { ScreenProps } from "../types";
-import * as ImagePicker from "expo-image-picker";
 import UploadConfirmationStyle from "../styles/UploadConfirmationStyle";
 
 const styles = UploadConfirmationStyle;
@@ -33,29 +32,6 @@ const UploadConfirmationScreen = ({
     return null;
   }
 
-  const handleEdit = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true, // ✅ system editor
-      quality: 1,
-      exif: true,
-      selectionLimit: 1,
-      uri: photo.uri, // edit current image
-    } as any);
-  
-    if (result.canceled) return;
-  
-    const asset = result.assets[0];
-  
-    setPhoto({
-      uri: asset.uri,
-      width: asset.width!,
-      height: asset.height!,
-      format: "jpg",
-      exif: asset.exif,
-    });
-  };
-  
 
   const handleUpload = async () => {
     if (!location?.coords) {
@@ -129,14 +105,14 @@ const UploadConfirmationScreen = ({
         <View style={styles.imageActions}>
   <TouchableOpacity
     style={styles.retakeIcon}
-    onPress={() => navigation.goBack()}
+    onPress={() => navigation.navigate("CameraScreen")}
   >
     <Text style={styles.retakeText}>⟳</Text>
   </TouchableOpacity>
 
   <TouchableOpacity
     style={styles.editIcon}
-    onPress={handleEdit}
+    onPress={() => navigation.goBack()}
   >
     <Text style={styles.editText}>✏️</Text>
   </TouchableOpacity>

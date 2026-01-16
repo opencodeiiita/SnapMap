@@ -108,7 +108,7 @@ export default function CameraScreen({
     }
   
     // ✅ Go DIRECTLY to confirmation screen
-    navigation.navigate("UploadConfirmationScreen", {
+    navigation.navigate("CropScreen", {
       photo: {
         uri: photo.uri,
         width: photo.width,
