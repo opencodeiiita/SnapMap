@@ -199,6 +199,13 @@ const EventGalleryStyle = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
   },
+  profileAvatar: {
+  width: 32,
+  height: 32,
+  borderRadius: 16,
+  backgroundColor: "#e5e7eb",
+},
+
 });
 
 export default EventGalleryStyle;

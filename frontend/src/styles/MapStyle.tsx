@@ -84,6 +84,12 @@ const MapStyle = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
   },
+  profileAvatar: {
+  width: 28,
+  height: 28,
+  borderRadius: 14,
+},
+
 });
 
 export default MapStyle;

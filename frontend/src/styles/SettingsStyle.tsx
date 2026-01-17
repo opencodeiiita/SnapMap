@@ -147,6 +147,12 @@ const SettingsStyle = StyleSheet.create({
     color: "#FF4444",
     letterSpacing: 0.5,
   },
+  profileAvatar: {
+  width: 24,
+  height: 24,
+  borderRadius: 12,
+},
+
 });
 
 export default SettingsStyle;

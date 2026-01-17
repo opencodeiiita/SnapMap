@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from "react";
 import {
   Image,
@@ -11,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import type { ScreenProps } from "../types";
 import EventGalleryStyle from "../styles/EventGalleryStyle";
 import BottomNavigation from "../navigation/BottomNavigation";
+import { useProfile } from "../context/ProfileContext";
 
 const styles = EventGalleryStyle;
 
@@ -77,7 +79,6 @@ const mockEvents: EventItem[] = [
         uri: "https://images.unsplash.com/photo-1515165562835-c3b8c1f0d79a?auto=format&fit=crop&w=400&q=80",
         user: "alex",
       },
-   
     ],
   },
   {
@@ -97,7 +98,7 @@ const mockEvents: EventItem[] = [
         id: "3a",
         uri: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=400&q=80",
         user: "alex",
-      }, 
+      },
     ],
   },
 ];
@@ -106,6 +107,7 @@ const EventGalleryScreen = ({
   navigation,
 }: ScreenProps<"EventGalleryScreen">) => {
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const { profile } = useProfile();
 
   const filteredEvents = useMemo(() => {
     if (activeFilter === "all") return mockEvents;
@@ -130,7 +132,18 @@ const EventGalleryScreen = ({
             style={styles.profileButton}
             accessibilityLabel="Open profile"
           >
-            <Ionicons name="person-circle-outline" size={28} color="#6b7380" />
+            {profile?.profileImage ? (
+              <Image
+                source={{ uri: profile.profileImage }}
+                style={styles.profileAvatar}
+              />
+            ) : (
+              <Ionicons
+                name="person-circle-outline"
+                size={28}
+                color="#6b7380"
+              />
+            )}
           </TouchableOpacity>
         </View>
 
@@ -228,7 +241,6 @@ const EventGalleryScreen = ({
         ))}
       </ScrollView>
 
-      {/* Bottom Navigation */}
       <BottomNavigation />
     </SafeAreaView>
   );
