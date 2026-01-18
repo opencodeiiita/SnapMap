@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useCameraPermissions } from "expo-camera";
-import React, { useEffect } from "react";
+import React from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,19 +12,14 @@ const styles = CameraPermissionStyle;
 const CameraPermissionScreen = ({
   navigation,
 }: ScreenProps<"CameraPermissionScreen">) => {
-  const [permission, requestPermission] = useCameraPermissions();
-
-  useEffect(() => {
-    if (permission?.granted) {
-      navigation.replace("LocationPermissionScreen");
-    }
-  }, [navigation, permission]);
+  const [, requestPermission] = useCameraPermissions();
 
   const handleAllow = async () => {
     const response = await requestPermission();
 
     if (response?.granted) {
-      navigation.replace("LocationPermissionScreen");
+      // 🔁 Always return to Splash for centralized decision
+      navigation.replace("SplashScreen");
       return;
     }
 
@@ -37,7 +32,8 @@ const CameraPermissionScreen = ({
   };
 
   const handleSkip = () => {
-    navigation.replace("LocationPermissionScreen");
+    // 🔁 Even on skip, Splash decides what happens next
+    navigation.replace("SplashScreen");
   };
 
   return (
@@ -75,7 +71,9 @@ const CameraPermissionScreen = ({
               end={{ x: 1, y: 1 }}
               style={styles.primaryButton}
             >
-              <Text style={styles.primaryButtonText}>Allow Camera Access</Text>
+              <Text style={styles.primaryButtonText}>
+                Allow Camera Access
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
 
