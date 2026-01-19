@@ -1,0 +1,59 @@
+maps_MK-codes365
+Issue: #316
+Repo: https://github.com/opencodeiiita/SnapMap
+
+Approach:
+- Goal: improve location accuracy used on Map screen and provide a path for future features (search, reverse-geocoding).
+- Implemented a small abstraction at `frontend/src/utils/location.ts` which:
+  - Attempts to use `react-native-geolocation-service` (native fused provider) when the native module is available (preferred for highest accuracy).
+  - Falls back to `expo-location` when the app is running in Expo-managed environments or when native module isn't available.
+  - Requests appropriate permissions (Android via `PermissionsAndroid`, iOS via `expo-location` request API).
+  - Uses high-accuracy calls and small maximumAge / timeout to avoid stale/warm caches.
+
+Files changed / added:
+- `frontend/src/screens/MapScreen.tsx` — replaced direct `expo-location` usage with the new helper and added a console log when a location is obtained.
+- `frontend/src/utils/location.ts` — NEW: abstraction that prefers `react-native-geolocation-service`, falls back to `expo-location`.
+- `frontend/package.json` — added `react-native-geolocation-service` dependency (so native builds can use the native fused provider).
+- `submissions/discussion/maps_MK-codes365.txt` — this report file.
+
+Observations and testing instructions (how to verify improved accuracy):
+1) Install dependencies and build (native builds recommended for best results):
+
+   # from repository root
+   cd frontend
+   npm install
+
+   # For Expo-managed (quick test, fallback will be used):
+   expo start
+
+   # For native (recommended; react-native-geolocation-service requires native linking):
+   expo prebuild --clean
+   npx pod-install ios
+   expo run:android
+
+2) Compare accuracy behavior
+- Before: the app used `expo-location` default calls. Depending on device and cached locations, accuracy could be low (~10-100m or worse) or rely on last known.
+- After: when the native `react-native-geolocation-service` is available (native build), the helper calls `getCurrentPosition` with `enableHighAccuracy: true`, `timeout: 15000`, and `maximumAge: 0`. This typically yields better GPS accuracy (single-digit meters) on devices with GPS.
+
+3) How to measure / proof of improvement
+- Open the app on device (native build). Visit the Map screen.
+- Check device console (Metro or Android Studio Logcat / Xcode console). The Map screen logs the obtained location with accuracy; look for lines like:
+
+  Obtained location: { latitude: 12.345678, longitude: 98.765432, accuracy: 4.2 }
+
+- Compare the `accuracy` value with the previous behaviour (if you have a baseline). Typical expected outcome: `accuracy` reduced (smaller number) when native provider is used (e.g., from 20-50m down to 3-8m).
+
+Notes / Limitations:
+- I could not run device-level location tests from this environment to produce runtime screenshots or logs. The code and dependency changes are implemented; however, `react-native-geolocation-service` requires a native build (not pure Expo JS) to run its native module. On Expo managed workflow without prebuild/eject, the package will not be available and the helper will fall back to `expo-location`.
+- iOS requires Info.plist entries (NSLocationWhenInUseUsageDescription) which are typically already handled in many projects; please confirm these keys are present in the native project.
+- Android requires adding the appropriate permissions in `AndroidManifest.xml` and enabling Google Play Services location if you want fused provider accuracy.
+
+What I changed in code (brief):
+- `MapScreen` now asks for permission via `requestLocationPermission()` and calls `getCurrentLocation()`; if a location is returned it's used; otherwise the app falls back to a default location.
+- `location.ts` dynamically tries to require `react-native-geolocation-service`; if it's not present, it uses `expo-location`'s `getCurrentPositionAsync` with `Location.Accuracy.Highest`.
+
+Next steps I can do for you:
+- Build a native test run and collect before/after logs (I can prepare a branch and CI instructions if you want me to attempt a prebuild here).
+- Add a simple UI readout of `accuracy` on the Map screen so testers can visually verify accuracy without checking logs.
+
+If you want me to commit these changes and push to a branch, confirm and I'll create the branch, commit, and push, then open a PR.

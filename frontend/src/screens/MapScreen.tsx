@@ -8,7 +8,8 @@ import {
   TextInput,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import * as Location from "expo-location";
+import { getCurrentLocation, requestLocationPermission } from "../utils/location";
+import type { LocationCoordinates } from "../utils/location";
 import type { ScreenProps } from "../types";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -84,13 +85,13 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
       let coords: Coordinates = defaultLocation;
 
       try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status === "granted") {
-          const loc = await Location.getCurrentPositionAsync();
-          coords = {
-            latitude: loc.coords.latitude,
-            longitude: loc.coords.longitude,
-          };
+        const granted = await requestLocationPermission();
+        if (granted) {
+          const loc: LocationCoordinates | null = await getCurrentLocation();
+          if (loc) {
+            coords = { latitude: loc.latitude, longitude: loc.longitude };
+            console.log("Obtained location:", loc);
+          }
         }
       } catch (error) {
         console.error("Error getting current location, using default:", error);
