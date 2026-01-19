@@ -118,14 +118,18 @@ export const getUserPhotos = async (req, res) => {
     console.log("📍 Fetching User Photos");
 
     // Fetch user photos from the database
-    const photos = await Photo.find({ clerkUserId: clerkId })
+    const photos = await Photo.find(
+        { clerkUserId: clerkId },
+        { _id: 0, imageUrl: 1 }
+      )
       .sort({ timestamp: -1 }) // Sort by newest first
       .lean(); // Convert to plain JavaScript objects for better performance
 
     console.log(`✅ Found ${photos.length} photos`);
 
-    // Return photos in the required format
-    return res.status(200).json(photos);
+    const imageUrls = photos.map(p => p.imageUrl);
+
+    return res.status(200).json(imageUrls);
     
   } catch (error) {
     console.error("Error fetching user photos:", error);
