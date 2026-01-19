@@ -10,7 +10,7 @@ const EventGalleryStyle = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 32,
     paddingTop: 12,
   },
   headerRow: {
@@ -199,13 +199,6 @@ const EventGalleryStyle = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
   },
-  profileAvatar: {
-  width: 32,
-  height: 32,
-  borderRadius: 16,
-  backgroundColor: "#e5e7eb",
-},
-
 });
 
 export default EventGalleryStyle;

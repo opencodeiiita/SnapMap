@@ -1,5 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   Image,
@@ -39,6 +40,23 @@ const LocationPermissionScreen = ({
 }: ScreenProps<"LocationPermissionScreen">) => {
   const [requesting, setRequesting] = useState(false);
 
+  const goHomeIfGranted = useCallback(async () => {
+    const current = await Location.getForegroundPermissionsAsync();
+
+    if (current.status === "granted") {
+      navigation.replace("HomeScreen");
+      return true;
+    }
+
+    return false;
+  }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      goHomeIfGranted();
+    }, [goHomeIfGranted])
+  );
+
   const handleAllow = async () => {
     if (requesting) return;
 
@@ -47,8 +65,7 @@ const LocationPermissionScreen = ({
       const response = await Location.requestForegroundPermissionsAsync();
 
       if (response.status === "granted") {
-        // 🔁 Return control to SplashScreen
-        navigation.replace("SplashScreen");
+        navigation.replace("HomeScreen");
         return;
       }
 
@@ -63,10 +80,7 @@ const LocationPermissionScreen = ({
     }
   };
 
-  const handleSkip = () => {
-    // 🔁 SplashScreen decides next step
-    navigation.replace("SplashScreen");
-  };
+  const handleSkip = () => navigation.replace("HomeScreen");
 
   return (
     <LinearGradient

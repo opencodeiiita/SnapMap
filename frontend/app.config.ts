@@ -1,5 +1,4 @@
 import getLocalIPAddress from "./getLocalIPAddress.ts";
-import { API_BASE_URL } from "./src/screens/RegisterUserScreen.tsx";
 
 const ip = getLocalIPAddress();
 
@@ -52,7 +51,6 @@ export default {
   },
 
   extra: {
-    // API_BASE_URL: `https://snapmap.onrender.com`
     API_BASE_URL: `http://${ip}:5000`
   }
 };

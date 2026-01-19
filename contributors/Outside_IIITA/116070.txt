@@ -1,8 +1,0 @@
-Name: Savan Modha
-GitHub Username: CoderMS07
-Favorite Country you want to Go: JAPAN
-Favorite (Underrated) Movie/Anime/Series: FROM
-
-Write some thing that you expect from this event: 
-
-I expect to learn how to effectively use Git and GitHub, understand version control workflows, and gain hands-on experience in raising pull requests and contributing to open-source projects.

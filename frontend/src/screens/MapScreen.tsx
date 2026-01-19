@@ -1,19 +1,10 @@
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import React, { useState, useEffect } from "react";
 import * as Location from "expo-location";
 import type { ScreenProps } from "../types";
-import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { FontAwesome } from "@expo/vector-icons";
 import MapStyle from "../styles/MapStyle";
-import BottomNavigation from "../navigation/BottomNavigation";
 import Constants from "expo-constants";
 import { useProfile } from "../context/ProfileContext";
 
@@ -21,12 +12,6 @@ const styles = MapStyle;
 
 const API_BASE_URL =
   Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
-const DEFAULT_RADIUS_METERS = 300;
-
-type Coordinates = {
-  latitude: number;
-  longitude: number;
-};
 
 type PhotoMarker = {
   id: string;
@@ -35,29 +20,26 @@ type PhotoMarker = {
 };
 
 const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
-  const [location, setLocation] = useState<Coordinates | null>(null);
-  const [photos, setPhotos] = useState<PhotoMarker[]>([]);
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
+  const [photos, setPhotos] = useState<PhotoMarker[]>([]);
   const { profile } = useProfile();
 
-  const defaultLocation: Coordinates = {
-    latitude: 25.3176,
-    longitude: 82.9739,
-  };
-
-  const getPhotos = async (coords: Coordinates): Promise<PhotoMarker[]> => {
+  const getPhotos = async (): Promise<PhotoMarker[]> => {
     try {
-      const query = `lat=${coords.latitude}&lon=${coords.longitude}&radius=${DEFAULT_RADIUS_METERS}`;
+      console.log(`${API_BASE_URL}/api/v1/photos/all-photos`);
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/v1/photos/nearby?${query}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/v1/photos/all-photos`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("response", response);
 
       if (!response.ok) {
         console.error("Failed to fetch photos:", response.statusText);
@@ -66,10 +48,12 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
 
       const data = await response.json();
 
+      // Transform API response to marker format
+      // API returns coordinates as [longitude, latitude] (GeoJSON format)
       const markers: PhotoMarker[] = data.map((photo: any) => ({
         id: photo._id,
-        longitude: photo.location.coordinates[0],
-        latitude: photo.location.coordinates[1],
+        longitude: photo.location.coordinates[0], // longitude first in GeoJSON
+        latitude: photo.location.coordinates[1], // latitude second in GeoJSON
       }));
 
       return markers;
@@ -81,23 +65,25 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
 
   useEffect(() => {
     (async () => {
-      let coords: Coordinates = defaultLocation;
+      let { status } = await Location.requestForegroundPermissionsAsync();
 
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status === "granted") {
-          const loc = await Location.getCurrentPositionAsync();
-          coords = {
-            latitude: loc.coords.latitude,
-            longitude: loc.coords.longitude,
-          };
-        }
-      } catch (error) {
-        console.error("Error getting current location, using default:", error);
+      if (status == "granted") {
+        console.log("Permission successful");
+      } else {
+        console.log("Permission not granted");
       }
 
-      setLocation(coords);
-      const fetchedPhotos = await getPhotos(coords);
+      const loc = await Location.getCurrentPositionAsync();
+
+      console.log(loc);
+      setLocation({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      });
+    })();
+
+    (async () => {
+      const fetchedPhotos = await getPhotos();
       setPhotos(fetchedPhotos);
     })();
   }, []);
@@ -111,7 +97,7 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View style={{ flex: 1 }}>
       <MapView
         style={StyleSheet.absoluteFill}
         provider={PROVIDER_GOOGLE}
@@ -121,64 +107,35 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
           latitudeDelta: 0.002,
           longitudeDelta: 0.002,
         }}
-        showsUserLocation
-        showsMyLocationButton
+        showsUserLocation={true}
+        showsMyLocationButton={true}
       >
-        {photos.map((photo) => (
-          <Marker
-            key={photo.id}
-            coordinate={{
-              latitude: photo.latitude,
-              longitude: photo.longitude,
-            }}
-          />
-        ))}
+        {photos.length > 0 &&
+          photos.map((photo) => (
+            <Marker
+              key={photo.id}
+              coordinate={{
+                latitude: photo.latitude,
+                longitude: photo.longitude,
+              }}
+            />
+          ))}
       </MapView>
 
-      {/* Top Bar */}
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.CameraButton}
+        onPress={() => navigation.navigate("CameraScreen")}
+      >
+        <FontAwesome name="camera" size={20} color="white" />
+      </TouchableOpacity>
 
-        <View style={styles.searchBar}>
-          <Ionicons
-            name="search"
-            size={20}
-            color="#9CA3AF"
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search campus..."
-            placeholderTextColor="#9CA3AF"
-          />
-        </View>
-
-        <TouchableOpacity
-          style={styles.profileButton}
-          onPress={() => navigation.navigate("ProfileScreen")}
-        >
-          {profile?.profileImage ? (
-            <Image
-              source={{ uri: profile.profileImage }}
-              style={styles.profileAvatar}
-            />
-          ) : (
-            <Ionicons
-              name="person-circle-outline"
-              size={28}
-              color="#f43f5e"
-            />
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <BottomNavigation />
-    </SafeAreaView>
+      <TouchableOpacity
+        style={styles.HomeButton}
+        onPress={() => navigation.navigate("HomeScreen")}
+      >
+        <FontAwesome name="home" size={25} color="white" />
+      </TouchableOpacity>
+    </View>
   );
 };
 

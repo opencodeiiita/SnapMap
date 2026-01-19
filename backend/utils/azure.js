@@ -1,13 +1,11 @@
 import {BlobServiceClient} from "@azure/storage-blob"
 import { configDotenv } from "dotenv"
-import path from "path";
-import crypto from "crypto";
 
 configDotenv()
 
 const CONTAINER_NAME = process.env.CONTAINER_NAME
 
-async function singleUploadToAzure(buffer, fileName) {
+async function uploadToAzure(buffer, fileName) {
     if(!buffer || !fileName)
         throw new Error("Buffer and Filename are required")
 
@@ -40,90 +38,4 @@ async function singleUploadToAzure(buffer, fileName) {
 
 }
 
-async function multiUploadToAzure(fileBuffers, fileNames) {
-  if (!Array.isArray(fileBuffers) || !Array.isArray(fileNames)) {
-    throw new Error("Invalid upload params");
-  }
-
-  if (fileBuffers.length !== fileNames.length) {
-    throw new Error("Buffers and filenames count mismatch");
-  }
-
-  if (!process.env.AZURE_STORAGE_CONNECTION) {
-    throw new Error("Connection string is required");
-  }
-
-  const blobServiceClient = BlobServiceClient.fromConnectionString(
-    process.env.AZURE_STORAGE_CONNECTION
-  );
-
-  await blobServiceClient.getAccountInfo();
-
-  const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
-
-  await containerClient.createIfNotExists({ access: "blob" });
-
-  const urls = [];
-
-  for (let i = 0; i < fileBuffers.length; i++) {
-    const blockBlobClient = containerClient.getBlockBlobClient(fileNames[i]);
-    await blockBlobClient.uploadData(fileBuffers[i]);
-    urls.push(blockBlobClient.url);
-  }
-
-  return urls;
-}
-
-async function profileImageUploadToAzure(file, userId) {
-    const ext = path.extname(file.originalname || "").toLowerCase();
-    const safeExt = ext && ext.length <= 10 ? ext : ".jpg";
-    const id = crypto.randomUUID();
-    const fileName = `${userId}/profile/${Date.now()}-${id}${safeExt}`;
-    
-    const imageUrl = await singleUploadToAzure(file.buffer, fileName);
-    console.log("Profile image uploaded successfully:", imageUrl);
-    return imageUrl;
-}
-
-async function deleteFromAzure(blobUrl) {
-    if (!blobUrl || typeof blobUrl !== "string") {
-        throw new Error("Blob URL is required");
-    }
-
-    if (!process.env.AZURE_STORAGE_CONNECTION) {
-        throw new Error("Connection string is required");
-    }
-
-    let containerName = CONTAINER_NAME;
-    let blobName;
-
-    try {
-        const parsedUrl = new URL(blobUrl);
-        const parts = parsedUrl.pathname.replace(/^\/+/, "").split("/");
-        if (parts.length < 2) {
-            throw new Error("Container or blob path missing in URL");
-        }
-        [containerName, ...blobName] = parts;
-        blobName = decodeURIComponent(blobName.join("/"));
-    } catch (err) {
-        throw new Error(`Invalid blob URL: ${err.message}`);
-    }
-
-    const blobServiceClient = BlobServiceClient.fromConnectionString(
-        process.env.AZURE_STORAGE_CONNECTION
-    );
-
-    await blobServiceClient.getAccountInfo();
-
-    const containerClient = blobServiceClient.getContainerClient(containerName);
-    const blobClient = containerClient.getBlobClient(blobName);
-    const result = await blobClient.deleteIfExists();
-
-    if (!result.succeeded) {
-        console.warn(`Blob not found or already deleted: ${blobUrl}`);
-    }
-    
-    return result.succeeded;
-}
-
-export { singleUploadToAzure, multiUploadToAzure, profileImageUploadToAzure, deleteFromAzure };
+export default uploadToAzure

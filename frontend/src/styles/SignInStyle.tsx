@@ -3,66 +3,42 @@ import { StyleSheet } from "react-native";
 const SignInStyle = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF5F5",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 20,
   },
-
-  card: {
-    width: "100%",
-    alignItems: "center",
-    paddingHorizontal: 32,
-  },
-
-  iconWrapper: {
-    width: 72,
-    height: 72,
-    borderRadius: 18,
-    backgroundColor: "#FF5A7A",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-  },
-
-  /* SnapMap title */
   title: {
-    fontSize: 36,
-    fontWeight: "600",
-    lineHeight: 40,
-    letterSpacing: -0.9,
-    textAlign: "center",
-    color: "#111111",
-    marginBottom: 12,
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333",
   },
-
-  /* Subtitle */
   subtitle: {
     fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: 0,
-    textAlign: "center",
-    color: "#6B6B6B",
+    color: "#666",
     marginBottom: 40,
   },
-
-  /* Button */
-  googleButton: {
+  button: {
+    backgroundColor: "#4285F4",
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    marginBottom: 20,
     width: "100%",
-    backgroundColor: "#FF3B5C",
-    paddingVertical: 16,
-    borderRadius: 32,
     alignItems: "center",
   },
-
-  /* Button text */
-  googleButtonText: {
-    fontSize: 18,
-    fontWeight: "500",
-    lineHeight: 28,
-    letterSpacing: 0.45,
-    textAlign: "center",
-    color: "#FFFFFF",
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  linkButton: {
+    marginTop: 10,
+  },
+  linkText: {
+    color: "#4285F4",
+    fontSize: 14,
   },
 });
 

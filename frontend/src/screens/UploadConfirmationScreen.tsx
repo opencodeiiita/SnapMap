@@ -6,8 +6,6 @@ import {
   TouchableOpacity,
   View,
   TextInput,
-  ScrollView,
-  Dimensions,
 } from "react-native";
 import Constants from "expo-constants";
 import { useAuth } from "@clerk/clerk-expo";
@@ -15,7 +13,6 @@ import type { ScreenProps } from "../types";
 import UploadConfirmationStyle from "../styles/UploadConfirmationStyle";
 
 const styles = UploadConfirmationStyle;
-const { width } = Dimensions.get("window");
 
 const API_BASE_URL =
   Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
@@ -24,15 +21,11 @@ const UploadConfirmationScreen = ({
   navigation,
   route,
 }: ScreenProps<"UploadConfirmationScreen">) => {
-  const { photo, photos, location } = route.params || {};
+  const { photo, location } = route.params || {};
   const { getToken } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
-  const [caption, setCaption] = useState('');
 
-  // Normalize input to an array of photos
-  const photosToUpload = photos || (photo ? [photo] : []);
-
-  if (photosToUpload.length === 0) {
+  if (!photo?.uri) {
     Alert.alert("No photo found", "Please retake and try again.");
     navigation.goBack();
     return null;
@@ -52,62 +45,33 @@ const UploadConfirmationScreen = ({
       if (!token) throw new Error("Auth error");
 
       const form = new FormData();
-
-      const isMultiple = photosToUpload.length > 1;
-      const endpoint = isMultiple
-        ? `${API_BASE_URL}/api/v1/photos/upload-photos`
-        : `${API_BASE_URL}/api/v1/photos/upload-photo`;
-      console.log("PHOTO UPLOAD DETAILS");
-      console.log("Total photos:", photosToUpload.length);
-      console.log("Caption:", caption);
-      console.log("Latitude:", location.coords.latitude);
-      console.log("Longitude:", location.coords.longitude);
-      console.log("Endpoint:", endpoint);
-
-      photosToUpload.forEach((p, index) => {
-        console.log(`Photo ${index + 1}`);
-        console.log("uri:", p.uri);
-        console.log("name:", "snap.jpg");
-        console.log("type:", "image/jpeg");
-      });
-      if (isMultiple) {
-        photosToUpload.forEach((p) => {
-          form.append("photos[]", {
-            uri: p.uri,
-            name: "snap.jpg",
-            type: "image/jpeg",
-          } as any);
-        });
-      } else {
-        form.append("photo", {
-          uri: photosToUpload[0].uri,
-          name: "snap.jpg",
-          type: "image/jpeg",
-        } as any);
-      }
-
+      form.append("photo", {
+        uri: photo.uri,
+        name: "snap.jpg",
+        type: "image/jpeg",
+      } as any);
       form.append("lat", String(location.coords.latitude));
       form.append("lon", String(location.coords.longitude));
-      form.append("caption", caption);
 
-      console.log(`Uploading ${photosToUpload.length} photos to ${endpoint}`);
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // 'Content-Type': 'multipart/form-data', // Usually handled automatically by fetch with FormData
-        },
-        body: form,
-      });
+      console.log("form", form);
+      console.log(`${API_BASE_URL}/api/v1/photos/upload-photo`);
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/photos/upload-photo`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: form,
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log("Upload error:", errorText);
+        console.log("errorText", errorText);
         throw new Error("Upload failed");
       }
 
-      Alert.alert("Success", `${photosToUpload.length} photo(s) uploaded!`, [
+      Alert.alert("Success", "Photo uploaded successfully", [
         { text: "OK", onPress: () => navigation.navigate("HomeScreen") },
       ]);
     } catch (error: any) {
@@ -119,69 +83,49 @@ const UploadConfirmationScreen = ({
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
-        <Text style={styles.header}>New Post ({photosToUpload.length})</Text>
+        <Text style={styles.header}>New Post</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <View style={{ height: 400, marginBottom: 20 }}>
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ alignItems: "center" }}
-        >
-          {photosToUpload.map((p, index) => (
-            <React.Fragment key={index}>
-              <View
-                style={[
-                  styles.imageCard,
-                  { width: width - 40, marginHorizontal: 20 },
-                ]}
-              >
-                <Image source={{ uri: p.uri }} style={styles.previewImage} />
+      {/* Image Card */}
+      <View style={styles.imageCard}>
+        <Image source={{ uri: photo.uri }} style={styles.previewImage} />
 
-                <View style={styles.locationBadge}>
-                  <Text style={styles.locationText}>
-                    📍{" "}
-                    {photosToUpload.length > 1
-                      ? `Photo ${index + 1}/${photosToUpload.length}`
-                      : "Main Court"}
-                  </Text>
-                </View>
-              </View>
-            </React.Fragment>
-          ))}
-        </ScrollView>
+        <View style={styles.locationBadge}>
+          <Text style={styles.locationText}>📍 Main Court</Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.retakeIcon}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.retakeText}>⟳</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Caption (Shared for now) */}
+      {/* Caption */}
       <View style={styles.captionBox}>
         <TextInput
           placeholder="Write a caption..."
           placeholderTextColor="#999"
           style={styles.captionInput}
-          value={caption}
-          onChangeText={setCaption}
         />
         <Text style={styles.emoji}>🙂</Text>
       </View>
 
-      {/* Add Photo Button */}
+      {/* Add Photo */}
       <TouchableOpacity
         style={styles.primaryButton}
         onPress={handleUpload}
         disabled={isUploading}
       >
         <Text style={styles.primaryButtonText}>
-          {isUploading
-            ? "Uploading..."
-            : `Post ${photosToUpload.length} Photo${
-                photosToUpload.length > 1 ? "s" : ""
-              }  >`}
+          {isUploading ? "Uploading..." : "Add Photo  >"}
         </Text>
       </TouchableOpacity>
 

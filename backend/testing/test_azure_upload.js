@@ -3,7 +3,7 @@ import path from "path";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 
-import singleUploadToAzure from "../utils/azure.js";
+import uploadToAzure from "../utils/azure.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,7 +16,7 @@ async function testUpload() {
     const imagePath = path.join(__dirname, "test2.png");
     const imageBuffer = fs.readFileSync(imagePath);
     const fileName = `test_${Date.now()}.jpg`;
-    const imageUrl = await singleUploadToAzure(imageBuffer, fileName);
+    const imageUrl = await uploadToAzure(imageBuffer, fileName);
 
     console.log(" Upload successful!");
     console.log(" Image URL:", imageUrl);

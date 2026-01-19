@@ -160,10 +160,4 @@ export const myUploadsStyles = StyleSheet.create({
     fontWeight: '600',
     color: '#1A1A1A',
   },
-  profileAvatar: {
-  width: 32,
-  height: 32,
-  borderRadius: 16,
-},
-
 });

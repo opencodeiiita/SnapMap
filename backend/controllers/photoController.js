@@ -2,7 +2,7 @@ import crypto from "crypto";
 import path from "path";
 import Photo from "../models/Photo.js";
 import User from "../models/User.js";
-import { singleUploadToAzure, multiUploadToAzure } from "../utils/azure.js";
+import uploadToAzure from "../utils/azure.js";
 
 const buildFileName = (originalName, clerkUserId) => {
   const ext = path.extname(originalName || "").toLowerCase();
@@ -27,7 +27,7 @@ export const uploadPhoto = async (req, res) => {
     );
     console.log("UserId:", req.userId);
 
-    const { lat, lon, caption } = req.body || {};
+    const { lat, lon } = req.body || {};
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lon);
 
@@ -52,24 +52,19 @@ export const uploadPhoto = async (req, res) => {
 
 
     const fileName = buildFileName(req.file.originalname, req.userId);
-    const imageUrl = await singleUploadToAzure(req.file.buffer, fileName);
+    const imageUrl = await uploadToAzure(req.file.buffer, fileName);
     console.log("upload successful---URL:", imageUrl);
 
     const photo = await Photo.create({
       userId: user._id,
       clerkUserId: req.userId,
-      imageUrl : [imageUrl],
-      caption: caption || "",
+      imageUrl,
       location: { type: "Point", coordinates: [longitude, latitude] },
       timestamp: new Date(),
       eventId: null,
     });
-    console.log("📝 Caption saved:", caption);
 
-    console.log("✅ Single photo entry created in MongoDB:", {
-      id: photo._id,
-      url: photo.imageUrl
-    });
+    console.log("✅ Photo uploaded to MongoDB:", photo._id.toString());
     return res.status(201).json({
       status: "success",
       photoId: photo._id,
@@ -104,85 +99,6 @@ export const getAllPhotos = async (req, res) => {
   }
 };
 
-// api/v1/photos/get-user-photos/:clerkId
-export const getUserPhotos = async (req, res) => {
-  const clerkId = req.params.clerkId;
-
-  console.log(`GET user-photos - ClerkId: ${clerkId}`)
-
-  if (!clerkId) {
-    return res.status(400).json({ message: "Invalid clerkId" });
-  }
-
-  try {
-    console.log("📍 Fetching User Photos");
-
-    // Fetch user photos from the database
-    const photos = await Photo.find(
-        { clerkUserId: clerkId },
-        { _id: 0, imageUrl: 1 }
-      )
-      .sort({ timestamp: -1 }) // Sort by newest first
-      .lean(); // Convert to plain JavaScript objects for better performance
-
-    console.log(`✅ Found ${photos.length} photos`);
-
-    const imageUrls = photos.map(p => p.imageUrl);
-
-    return res.status(200).json(imageUrls);
-    
-  } catch (error) {
-    console.error("Error fetching user photos:", error);
-    return res.status(500).json({
-      message: "Internal server error: " + error.message,
-    });
-  }
-}
-
-export const getNearbyPhotos = async (req, res) => {
-  try {
-    const { lat, lon, radius } = req.query || {};
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lon);
-    const parsedRadius = parseFloat(radius);
-    const maxDistance =
-      Number.isFinite(parsedRadius) && parsedRadius > 0
-        ? parsedRadius
-        : 300; // default to 300 meters
-
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid or missing lat/lon for nearby search" });
-    }
-
-    const photos = await Photo.find({
-      location: {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [longitude, latitude],
-          },
-          $maxDistance: maxDistance,
-        },
-      },
-    })
-      .sort({ timestamp: -1 })
-      .lean();
-
-    console.log(
-      `✅ Found ${photos.length} nearby photos within ${maxDistance}m of ${latitude},${longitude}`
-    );
-
-    return res.status(200).json(photos);
-  } catch (error) {
-    console.error("Error fetching nearby photos:", error);
-    return res.status(500).json({
-      message: "Internal server error: " + error.message,
-    });
-  }
-};
-
 // Test upload endpoint without authentication (for testing only)
 export const testUploadPhoto = async (req, res) => {
   try {
@@ -190,7 +106,7 @@ export const testUploadPhoto = async (req, res) => {
     console.log("Request body:", req.body);
     console.log("File info:", req.file ? { size: req.file.size, mimetype: req.file.mimetype } : "No file");
 
-    const { lat, lon, caption, testUserId } = req.body || {};
+    const { lat, lon, testUserId } = req.body || {};
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lon);
     const clerkUserId = testUserId || "test-user-123"; // Use provided or default test user
@@ -216,24 +132,19 @@ export const testUploadPhoto = async (req, res) => {
     }
 
     const fileName = buildFileName(req.file.originalname, clerkUserId);
-    const imageUrl = await singleUploadToAzure(req.file.buffer, fileName);
+    const imageUrl = await uploadToAzure(req.file.buffer, fileName);
     console.log("Upload successful - URL:", imageUrl);
 
     const photo = await Photo.create({
       userId: user._id,
       clerkUserId,
       imageUrl,
-      caption: caption || "",
       location: { type: "Point", coordinates: [longitude, latitude] },
       timestamp: new Date(),
       eventId: null,
     });
-    console.log("📝 Caption saved:", caption);
 
-    console.log("✅ TEST Single photo entry created in MongoDB:", {
-      id: photo._id,
-      url: photo.imageUrl
-    });
+    console.log("✅ TEST Photo uploaded to MongoDB:", photo._id.toString());
     return res.status(201).json({
       status: "success",
       photoId: photo._id,
@@ -249,11 +160,11 @@ export const testUploadPhoto = async (req, res) => {
 };
 
 
-
+// multiple uploads added here//
 
 export const uploadPhotos = async(req,res)=>{
   try{
-    const{lat,lon,caption} = req.body || {};
+    const{lat,lon} = req.body || {};
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lon);
 
@@ -272,40 +183,34 @@ export const uploadPhotos = async(req,res)=>{
       return res.status(404).json({ message: "User not registered" });
     }
 
-    const fileBuffers = [];
-    const fileNames = [];
+    const uploadedPhotos = [];
 
     for (const file of req.files) {
-      fileBuffers.push(file.buffer);
-      fileNames.push(buildFileName(file.originalname, req.userId));
+      const fileName = buildFileName(file.originalname, req.userId);
+      const imageUrl = await uploadToAzure(file.buffer, fileName);
+
+      const photo = await Photo.create({
+        userId: user._id,
+        clerkUserId: req.userId,
+        imageUrl,
+        location: {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        },
+        timestamp: new Date(),
+        eventId: null,
+      });
+
+      uploadedPhotos.push({
+        photoId: photo._id,
+        imageUrl,
+      });
     }
 
-    const imageUrls = await multiUploadToAzure(fileBuffers, fileNames);
-
-
-    const photo = await Photo.create({
-      userId: user._id,
-      clerkUserId: req.userId,
-      imageUrl: imageUrls,
-      caption: caption || "",
-      location: {
-        type: "Point",
-        coordinates: [longitude, latitude],
-      },
-      timestamp: new Date(),
-      eventId: null,
-    });
-    console.log("📝 Caption saved for multiple photos:", caption);
-
-    console.log("✅ Multi-photo entry created in MongoDB:", {
-      id: photo._id,
-      urls: photo.imageUrl
-    });
-
-    return res.status(201).json({
+        return res.status(201).json({
       status: "success",
-      photoId: photo._id,
-      urls: photo.imageUrl,
+      count: uploadedPhotos.length,
+      photos: uploadedPhotos,
     });
   } catch (error) {
     console.error("Upload multiple photos error:", error);

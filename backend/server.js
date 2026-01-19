@@ -4,7 +4,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
-import router from "./v1.js";
+import router from "../backend/v1.js";
 
 const app = express();
 
