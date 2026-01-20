@@ -3,6 +3,8 @@ import path from "path";
 import Photo from "../models/Photo.js";
 import User from "../models/User.js";
 import { singleUploadToAzure, multiUploadToAzure } from "../utils/azure.js";
+import { createProducer } from "../utils/kafka.js";
+import { PHOTO_UPLOADS } from "../utils/kafkaTopics.js";
 
 const buildFileName = (originalName, clerkUserId) => {
   const ext = path.extname(originalName || "").toLowerCase();
@@ -10,6 +12,38 @@ const buildFileName = (originalName, clerkUserId) => {
   const id = crypto.randomUUID();
   return `${clerkUserId}/${Date.now()}-${id}${safeExt}`;
 };
+
+//Emit Kafka event after successful photo upload
+async function emitPhotoUploadEvent(photo) {
+  try {
+    const producer = await createProducer();
+
+    const payload = {
+      photoId: photo._id.toString(),
+      timestamp: photo.timestamp.toISOString(),
+      location: photo.location?.coordinates, // [lng, lat]
+      storageUrl: Array.isArray(photo.imageUrl)
+        ? photo.imageUrl[0]
+        : photo.imageUrl,
+    };
+
+    producer
+      .send({
+        topic: PHOTO_UPLOADS,
+        messages: [{ value: JSON.stringify(payload) }],
+      })
+      .catch((err) => {
+        console.error("Kafka publish failed:", err.message);
+      })
+      .finally(() => {
+        producer.disconnect().catch(() => {});
+      });
+  } catch (err) {
+    // Never block upload
+    console.error("Kafka init error:", err.message);
+  }
+}
+
 
 export const uploadPhoto = async (req, res) => {
   try {
@@ -70,6 +104,7 @@ export const uploadPhoto = async (req, res) => {
       id: photo._id,
       url: photo.imageUrl
     });
+    emitPhotoUploadEvent(photo);
     return res.status(201).json({
       status: "success",
       photoId: photo._id,
@@ -234,6 +269,7 @@ export const testUploadPhoto = async (req, res) => {
       id: photo._id,
       url: photo.imageUrl
     });
+    emitPhotoUploadEvent(photo);
     return res.status(201).json({
       status: "success",
       photoId: photo._id,
@@ -301,7 +337,7 @@ export const uploadPhotos = async (req, res) => {
       id: photo._id,
       urls: photo.imageUrl
     });
-
+    emitPhotoUploadEvent(photo);
     return res.status(201).json({
       status: "success",
       photoId: photo._id,
@@ -316,31 +352,3 @@ export const uploadPhotos = async (req, res) => {
   }
 
 };
-export const getUserPhotos = async (req, res) => {
-  try {
-    console.log("📂 Fetching user photos");
-
-    // authMiddleware sets this
-    const clerkUserId = req.userId;
-
-    if (!clerkUserId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const photos = await Photo.find({ clerkUserId })
-      .sort({ timestamp: -1 })
-      .lean();
-
-    console.log(`✅ Found ${photos.length} photos for user ${clerkUserId}`);
-
-    return res.status(200).json({
-      photos: photos.map((p) => p.imageUrl),
-    });
-  } catch (error) {
-    console.error("Error fetching user photos:", error);
-    return res.status(500).json({
-      message: "Internal server error: " + error.message,
-    });
-  }
-};
-
