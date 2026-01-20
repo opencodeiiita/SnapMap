@@ -101,7 +101,7 @@ This took some time but successfully:
 
 Finally the app opened in the emulator:
 
-![App Running](disussion/eshaanag_android/metro-running.png)
+![App Running](assets/eshaanag/metro-running.png)
 
 ---
 
