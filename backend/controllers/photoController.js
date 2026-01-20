@@ -58,7 +58,7 @@ export const uploadPhoto = async (req, res) => {
     const photo = await Photo.create({
       userId: user._id,
       clerkUserId: req.userId,
-      imageUrl : [imageUrl],
+      imageUrl: [imageUrl],
       caption: caption || "",
       location: { type: "Point", coordinates: [longitude, latitude] },
       timestamp: new Date(),
