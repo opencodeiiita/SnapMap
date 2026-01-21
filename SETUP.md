@@ -136,6 +136,43 @@ docker exec -it snapmap-kafka /opt/kafka/bin/kafka-topics.sh --create --topic ph
 
 If you use a hosted Kafka service, set `KAFKA_BROKERS` to the provider's bootstrap hosts and fill `KAFKA_USERNAME`/`KAFKA_PASSWORD` only if SASL is required.
 
+### Event Clustering Worker: run and test locally
+
+Start the app and upload 5 - 6 photos and note their details 
+then in separate terminal do the following
+-----------------------:
+
+Env knobs (in `backend/.env`, defaults):
+```
+EVENT_DISTANCE_THRESHOLD_METERS=75
+EVENT_TIME_WINDOW_MINUTES=15
+MIN_PHOTOS_FOR_EVENT=5   # lower to 3 for quick local tests
+EVENT_CLUSTERING_CONSUMER_GROUP=snapmap-event-clustering
+```
+
+Run the worker (from `backend/`):
+```
+npm run worker:cluster
+```
+You should see: “Listening on topic photo-uploads …”
+
+Quick manual test (PowerShell):
+1) Get photoIds/coords/timestamps already in Mongo:
+```
+mongosh "mongodb://localhost:27017/snapmap" --eval 'db.photos.find({}, { _id:1, location:1, timestamp:1 }).sort({timestamp:-1}).limit(5).pretty()'
+```
+2) Produce messages (one line each):
+```
+docker exec -it snapmap-kafka /opt/kafka/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic photo-uploads
+{"photoId":"<id1>","timestamp":"...","location":[<lon>,<lat>]}
+{"photoId":"<id2>","timestamp":"...","location":[<lon>,<lat>]}
+...send at least MIN_PHOTOS_FOR_EVENT...
+```
+3) Observe worker logs for `action: created/updated`. To view emitted assignments:
+```
+docker exec -it snapmap-kafka /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic event-updates --from-beginning
+
+
 ### Clerk Authentication Setup
 
 SnapMap uses Clerk for authentication.
