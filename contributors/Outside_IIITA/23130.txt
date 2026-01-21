@@ -1,7 +1,0 @@
-Name: Tarun Kumar
-GitHub Username: tarunkumar1504
-Favorite Country you want to Go: USA
-Favorite (Underrated) Movie/Anime/Series: TMKOC
-
-Write some thing that you expect from this event:
-I expect to learn real-world open-source collaboration, improve my GitHub workflow, and contribute meaningfully to community-driven projects.

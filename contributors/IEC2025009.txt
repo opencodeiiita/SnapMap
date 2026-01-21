@@ -1,5 +1,0 @@
-Name: Ronak Goyal
-GitHub Username: ronakgoyal1
-Favorite Country you want to Go: Norway
-Favorite (Underrated) Movie/Anime/Series: Dark (Netflix)
-What I expect from this event: I want to learn real-world open source collaboration and improve my development skills.

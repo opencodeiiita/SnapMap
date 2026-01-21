@@ -1,4 +1,0 @@
-touch .\contributors\Outside\ IIITA\A35705224040.txt
-/usr/bin/touch: cannot touch '.\contributors\Outside\': Not a directory
-/usr/bin/touch: cannot touch 'IIITA\A35705224040.txt': No such file or directory
-PS C:\Users\Lenovo\OneDrive - Amity University\Coding\git\SnapMap> 

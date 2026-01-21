@@ -1,6 +1,0 @@
-Name: Harshit Sethi
-GitHub Username: HarshitRSethi
-Favorite Country you want to Go: Switzerland
-Favorite (Underrated) Movie/Anime/Series: Gullak
-
-Write some thing that you expect from this event: I expect to learn a lot more about different branches of tech especially from appDev, WebDev and GameDev. It would also be nice to learn more about data handling.

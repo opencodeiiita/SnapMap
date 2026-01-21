@@ -1,7 +1,0 @@
-Name: Vinay Reddy
-GitHub Username: vinayreddy765
-Favorite Country  to Go:U.S.A 
-Favorite (Underrated) Movie: Suryavamsha
-
-I expect to learn open source collaboration, improve my Git workflow,
-and contribute meaningfully to the SnapMap project.

@@ -1,9 +1,0 @@
-Name: N Satish
-
-GitHub Username: SATI2004
-
-Favorite Country you want to Go: Japan
-
-Favorite (Underrated) Movie/Anime/Series: The Pursuit of Happyness
-
-Write something that you expect from this event: I expect to gain hands-on experience with real-world open-source projects, improve my Git workflow skills, and collaborate with talented developers. I'm looking forward to learning best practices for writing clean code, understanding large codebases, and building connections with the open-source community. This event will help me transition from solving algorithmic problems to contributing meaningfully to production-level projects.

@@ -1,5 +1,0 @@
-Name: Om Maheshwari
-College: ABES Engineering College
-Degree: B.Tech (Computer Science)
-Interests: Full Stack Development, Backend Systems, Open Source
-Favorite Movie: Interstellar

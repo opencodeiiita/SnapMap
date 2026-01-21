@@ -1,6 +1,0 @@
-Name: Yuvaraj Ragothaman
-GitHub Username: LevelSilence
-Favorite Country you want to Go: Japan
-Favorite (Underrated) Movie/Anime/Series: The Social Network
-
-Pre GSoC

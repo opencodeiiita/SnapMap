@@ -1,8 +1,0 @@
-Name: Shubham Sahu
-GitHub Username: techshubham99
-Favorite Country you want to Go: Japan 🇯🇵
-Favorite (Underrated) Movie/Anime/Series: Money heist (Series)
-
-Write some thing that you expect from this event:
-I expect to gain hands-on experience with open-source collaboration,
-improve my GitHub workflow, and learn by contributing with the community.
