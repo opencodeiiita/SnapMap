@@ -352,3 +352,4 @@ export const uploadPhotos = async (req, res) => {
   }
 
 };
+

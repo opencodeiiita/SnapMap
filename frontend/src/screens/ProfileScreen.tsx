@@ -81,10 +81,11 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
 
 
   useEffect(() => {
-    fetchProfile();
-    fetchUserPhotos();
-  }, []);
-
+    if (user?.id) {
+      fetchProfile();
+      fetchUserPhotos();
+    }
+  }, [user?.id]);
 
   const fetchProfile = async () => {
     setIsLoading(true);
@@ -161,27 +162,23 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
     try {
       setIsGalleryLoading(true);
 
-      const token = await getToken();
-
       const response = await fetch(
-        `${API_BASE_URL}/api/v1/photos/get-user-photos`,
+        `${API_BASE_URL}/api/v1/photos/get-user-photos/${user.id}`,
         {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
+      const rawData: (string | string[])[] = await response.json();
 
-      const data = await response.json();
+      const imageUrls: string[] = rawData.flatMap(
+        (url) => (Array.isArray(url) ? url : [url])
+      );
 
-      if (response.ok && Array.isArray(data.photos)) {
-        setGalleryImages(data.photos);
-        setTotalSnaps(data.photos.length);
-      } else {
-        setGalleryImages([]);
-        setTotalSnaps(0);
-      }
+      setGalleryImages(imageUrls);
+      setTotalSnaps(imageUrls.length);
+
+
+
     } catch (err) {
       console.error("Error fetching user photos:", err);
       setGalleryImages([]);
