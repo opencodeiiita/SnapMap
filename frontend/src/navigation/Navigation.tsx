@@ -21,6 +21,7 @@ import ProfileScreen from "../screens/ProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import ErrorScreen from "../screens/ErrorScreen";
 import RegisterUserScreen from "../screens/RegisterUserScreen";
+import SnapScreen from "../screens/SnapScreen";
 
 const Stack = createNativeStackNavigator<RootParamList>();
 
@@ -59,6 +60,7 @@ const MainNavigator = () => {
       <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
       <Stack.Screen name="ErrorScreen" component={ErrorScreen} />
       <Stack.Screen name="RegisterUserScreen" component={RegisterUserScreen} />
+      <Stack.Screen name="SnapScreen" component={SnapScreen} />
     </Stack.Navigator>
   );
 };

@@ -43,6 +43,11 @@ export type RootParamList = {
   SettingsScreen: undefined;
   ErrorScreen: undefined;
   RegisterUserScreen: undefined;
+  SnapScreen: 
+  {
+    imageURL?: string[];
+
+  }
 };
 
 export type ScreenProps<T extends keyof RootParamList> = {

@@ -141,7 +141,7 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
         }
       }
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("Error fetching profile:", API_BASE_URL, error);
       // Fall back to Clerk user data on error
       if (user) {
         setProfile((prev) => ({
