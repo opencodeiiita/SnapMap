@@ -6,7 +6,10 @@ import Photo from "../models/Photo.js";
  * @returns {boolean}
  */
 export async function isPhotoAlreadyAssigned(photoId) {
-  const photo = await Photo.findById(photoId).select("eventId").lean();
+  const photo = await Photo.findById(photoId)
+    .select("eventId")
+    .lean();
+
   return Boolean(photo?.eventId);
 }
 
@@ -24,12 +27,20 @@ export async function assignEventToPhotos(photoIds, eventId) {
     const alreadyAssigned = await isPhotoAlreadyAssigned(photoId);
 
     if (alreadyAssigned) {
-      continue; // idempotent: skip already processed photo
+      continue; // idempotent skip
     }
 
     await Photo.updateOne(
-      { _id: photoId, eventId: { $exists: false } },
-      { $set: { eventId } }
+      {
+        _id: photoId,
+        $or: [
+          { eventId: { $exists: false } },
+          { eventId: null }
+        ],
+      },
+      {
+        $set: { eventId },
+      }
     );
   }
 }
