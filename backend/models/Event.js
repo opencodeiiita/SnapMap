@@ -5,6 +5,12 @@ const EventSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  status: {
+    type: String,
+    enum: ["ACTIVE", "FINALIZED"],
+    default: "ACTIVE",
+    index: true,
+  },
   locationCenter: {
     type: {
       type: String,
@@ -22,10 +28,30 @@ const EventSchema = new mongoose.Schema({
   },
   photoCount: {
     type: Number,
+    default: 0,
   },
+  photoIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Photo",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  startTime: {
+    type: Date,
+    default: Date.now,
+  },
+  endTime: {
+    type: Date,
+    default: Date.now,
+  },
+  lastPhotoTimestamp: {
+    type: Date,
+    default: Date.now,
+    index: true,
   },
   eventTimeStamp: {
     type: Date,
@@ -34,6 +60,7 @@ const EventSchema = new mongoose.Schema({
 });
 
 EventSchema.index({ locationCenter: '2dsphere' });
+EventSchema.index({ status: 1, lastPhotoTimestamp: -1 });
 
 const Event = mongoose.model('Event', EventSchema);
 export default Event

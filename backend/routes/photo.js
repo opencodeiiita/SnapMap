@@ -8,6 +8,7 @@ import {
   getNearbyPhotos,
   testUploadPhoto,
   getUserPhotos,
+  getUserPhotosByClerkId,
 } from "../controllers/photoController.js";
 
 
@@ -52,7 +53,7 @@ router.get("/all-photos", getAllPhotos);
 router.get("/nearby", getNearbyPhotos);
 router.get("/get-user-photos", authMiddleware, getUserPhotos);
 
-router.get("/get-user-photos/:clerkId", getUserPhotos);
+router.get("/get-user-photos/:clerkId", getUserPhotosByClerkId);
 
 
 export default router
