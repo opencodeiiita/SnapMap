@@ -139,7 +139,7 @@ const UploadConfirmationScreen = ({
               <View
                 style={[
                   styles.imageCard,
-                  { width: width - 40, marginHorizontal: 20 },
+                  { width: width - 40 },
                 ]}
               >
                 <Image source={{ uri: p.uri }} style={styles.previewImage} />
