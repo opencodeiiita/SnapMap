@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "npx nodemon server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "worker:cluster": "node workers/eventClusteringWorker.js"
   },
   "keywords": [],
   "author": "",
