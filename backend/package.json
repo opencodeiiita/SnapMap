@@ -5,6 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start": "npx nodemon server.js",
+    "start:api": "cross-env APP_ROLE=api node server.js",
+    "start:cluster-worker": "cross-env APP_ROLE=event-clustering-worker node server.js",
+    "start:update-worker": "cross-env APP_ROLE=photo-update-worker node server.js",
+    "start:sweeper": "cross-env APP_ROLE=sweeper node server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [],
