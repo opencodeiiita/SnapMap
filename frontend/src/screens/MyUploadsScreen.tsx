@@ -20,6 +20,7 @@ import {
   normalizeUserUploads,
   UserUpload,
 } from "../utils/photoHelpers";
+import Toast from "../components/Toast";
 
 const API_BASE_URL =
   Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
@@ -43,6 +44,17 @@ const MyUploadsScreen: React.FC = () => {
   const [isSliderVisible, setIsSliderVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<FilterKey>("All");
+
+  const [toast, setToast] = useState<{
+    visible: boolean;
+    message: string;
+    success: boolean;
+  }>({
+    visible: false,
+    message: "",
+    success: true,
+  });
+
 
   useEffect(() => {
     if (user?.id) {
@@ -84,7 +96,7 @@ const MyUploadsScreen: React.FC = () => {
     try {
       const token = await getToken();
 
-      await fetch(`${API_BASE_URL}/api/v1/photos/deletePhoto`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/photos/deletePhoto`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -93,16 +105,30 @@ const MyUploadsScreen: React.FC = () => {
         body: JSON.stringify({ imageUrl: upload.uri }),
       });
 
+      if (!res.ok) throw new Error("Delete failed");
+
       setUploads((prev) => prev.filter((u) => u.uri !== upload.uri));
 
       if (filteredUploads.length <= 1) {
         setIsSliderVisible(false);
       }
 
+      setToast({
+        visible: true,
+        message: "Photo deleted successfully",
+        success: true,
+      });
     } catch (err) {
       console.error("Delete failed:", err);
+
+      setToast({
+        visible: true,
+        message: "Failed to delete photo",
+        success: false,
+      });
     }
   };
+
 
   const filteredUploads = useMemo(() => {
     let list = uploads;
@@ -387,6 +413,12 @@ const MyUploadsScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        success={toast.success}
+        onHide={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
     </View>
   );
 };
