@@ -58,8 +58,8 @@ const BottomNavigation = () => {
         icon: (
           <MaterialCommunityIcons
             name="compass-outline"
-            size={26}
-            color={isActive("MapScreen") ? "#EF4444" : "#9CA3AF"}
+            size={26} // Compass icon
+            color={isActive("MapScreen") || route.name === "SnapScreen" ? "#EF4444" : "#9CA3AF"}
           />
         ),
         onPress: () => navigation.navigate("MapScreen"),

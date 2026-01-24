@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useUser } from "@clerk/clerk-expo";
 
 /**
  * Profile type
@@ -22,7 +23,28 @@ type ProfileContextType = {
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export const ProfileProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useUser();
   const [profile, setProfile] = useState<Profile | null>(null);
+
+  /**
+   * Fallback logic:
+   * If profile is null (first-time user),
+   * populate minimal profile data from Clerk
+   */
+  useEffect(() => {
+    if (!profile && user) {
+      const email = user.emailAddresses?.[0]?.emailAddress;
+
+      setProfile({
+        name: user.fullName || "",
+        profileImage:
+          user.imageUrl ||
+          (email
+            ? `https://api.dicebear.com/7.x/initials/png?seed=${email}`
+            : null),
+      });
+    }
+  }, [user, profile]);
 
   return (
     <ProfileContext.Provider value={{ profile, setProfile }}>

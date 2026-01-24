@@ -85,4 +85,45 @@ async function profileImageUploadToAzure(file, userId) {
     return imageUrl;
 }
 
-export { singleUploadToAzure, multiUploadToAzure, profileImageUploadToAzure };
+async function deleteFromAzure(blobUrl) {
+    if (!blobUrl || typeof blobUrl !== "string") {
+        throw new Error("Blob URL is required");
+    }
+
+    if (!process.env.AZURE_STORAGE_CONNECTION) {
+        throw new Error("Connection string is required");
+    }
+
+    let containerName = CONTAINER_NAME;
+    let blobName;
+
+    try {
+        const parsedUrl = new URL(blobUrl);
+        const parts = parsedUrl.pathname.replace(/^\/+/, "").split("/");
+        if (parts.length < 2) {
+            throw new Error("Container or blob path missing in URL");
+        }
+        [containerName, ...blobName] = parts;
+        blobName = decodeURIComponent(blobName.join("/"));
+    } catch (err) {
+        throw new Error(`Invalid blob URL: ${err.message}`);
+    }
+
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+        process.env.AZURE_STORAGE_CONNECTION
+    );
+
+    await blobServiceClient.getAccountInfo();
+
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blobClient = containerClient.getBlobClient(blobName);
+    const result = await blobClient.deleteIfExists();
+
+    if (!result.succeeded) {
+        console.warn(`Blob not found or already deleted: ${blobUrl}`);
+    }
+    
+    return result.succeeded;
+}
+
+export { singleUploadToAzure, multiUploadToAzure, profileImageUploadToAzure, deleteFromAzure };

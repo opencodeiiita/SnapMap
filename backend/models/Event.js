@@ -26,7 +26,11 @@ const EventSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  }
+  },
+  eventTimeStamp: {
+    type: Date,
+    required : true
+  },
 });
 
 EventSchema.index({ locationCenter: '2dsphere' });

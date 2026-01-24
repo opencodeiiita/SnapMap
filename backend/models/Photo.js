@@ -11,7 +11,7 @@ const PhotoSchema = new mongoose.Schema({
     required: true
   },
   imageUrl: {
-    type: mongoose.Schema.Types.Mixed,
+    type: mongoose.Schema.Types.Array,
     required: true
   },
   caption: {

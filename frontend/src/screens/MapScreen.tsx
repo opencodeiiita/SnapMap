@@ -16,6 +16,8 @@ import MapStyle from "../styles/MapStyle";
 import BottomNavigation from "../navigation/BottomNavigation";
 import Constants from "expo-constants";
 import { useProfile } from "../context/ProfileContext";
+import { useUser } from "@clerk/clerk-expo";
+import SnapScreen from "./SnapScreen";
 
 const styles = MapStyle;
 
@@ -32,13 +34,28 @@ type PhotoMarker = {
   id: string;
   latitude: number;
   longitude: number;
+  imageURL: string[];
+  caption: string;
 };
 
 const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [photos, setPhotos] = useState<PhotoMarker[]>([]);
 
+  const singlePhoto = require("../assets/images/single-photo-icon.png");
+  const multiPhoto = require("../assets/images/multi-photo-icon.png");
+
   const { profile } = useProfile();
+  const { user } = useUser();
+
+  const email = user?.emailAddresses?.[0]?.emailAddress;
+
+  const profileImage =
+    profile?.profileImage ||
+    user?.imageUrl ||
+    (email
+      ? `https://api.dicebear.com/7.x/initials/png?seed=${email}`
+      : undefined);
 
   const defaultLocation: Coordinates = {
     latitude: 25.3176,
@@ -70,6 +87,8 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
         id: photo._id,
         longitude: photo.location.coordinates[0],
         latitude: photo.location.coordinates[1],
+        imageURL: photo.imageUrl,
+        caption: photo.caption,
       }));
 
       return markers;
@@ -124,14 +143,26 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
         showsUserLocation
         showsMyLocationButton
       >
-        {photos.map((photo) => (
-          <Marker
+        {photos.map((photo, idx) => (
+          <View
+          key={idx}>
+            <Marker
             key={photo.id}
             coordinate={{
               latitude: photo.latitude,
               longitude: photo.longitude,
             }}
-          />
+            image={photo.imageURL.length === 1 ? singlePhoto : multiPhoto}
+            onPress={() => navigation.navigate("SnapScreen", {
+              imageURL: photo.imageURL,
+              caption: photo.caption,
+              latitude: photo.latitude,
+              longitude: photo.longitude,
+            })}
+
+            />
+          </View>
+          
         ))}
       </MapView>
 
@@ -162,16 +193,10 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
           style={styles.profileButton}
           onPress={() => navigation.navigate("ProfileScreen")}
         >
-          {profile?.profileImage ? (
+          {profileImage && (
             <Image
-              source={{ uri: profile.profileImage }}
+              source={{ uri: profileImage }}
               style={styles.profileAvatar}
-            />
-          ) : (
-            <Ionicons
-              name="person-circle-outline"
-              size={28}
-              color="#f43f5e"
             />
           )}
         </TouchableOpacity>

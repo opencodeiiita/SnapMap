@@ -19,36 +19,14 @@ import Constants from "expo-constants";
 import type { ScreenProps } from "../types";
 import ProfileStyle from "../styles/ProfileStyle";
 import { useProfile } from "../context/ProfileContext";
+import Toast from "../components/Toast";
 
 const API_BASE_URL =
   Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 
 const styles = ProfileStyle;
 
-// Year options - same as RegisterUserScreen
 const YEAR_OPTIONS = ["1st", "2nd", "3rd", "4th", "5th", "Graduate", "Other"];
-
-// Mock data for gallery images
-const mockGalleryImages = [
-  { id: "1", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300" },
-  { id: "2", url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300" },
-  { id: "3", url: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=300" },
-  { id: "4", url: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=300" },
-  { id: "5", url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=300" },
-  { id: "6", url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300" },
-  { id: "7", url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300" },
-  { id: "8", url: "https://images.unsplash.com/photo-1518173946687-a4c036bc3c95?w=300" },
-  { id: "9", url: "https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=300" },
-];
-
-interface UserProfile {
-  name: string;
-  collegeName: string;
-  phoneNumber: string;
-  year: string;
-  profileImage: string | null;
-  bio?: string;
-}
 
 const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
   const { getToken } = useAuth();
@@ -57,11 +35,12 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [totalSnaps, setTotalSnaps] = useState<number>(0);
+  const [isGalleryLoading, setIsGalleryLoading] = useState(true);
 
-  // Profile data (GLOBAL via context)
   const { profile, setProfile } = useProfile();
 
-  // Edit form data
   const [editForm, setEditForm] = useState({
     name: "",
     bio: "",
@@ -70,34 +49,42 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
     year: "",
   });
 
-  // Selected image for upload
   const [selectedImage, setSelectedImage] = useState<{
     uri: string;
     type: string;
     name: string;
   } | null>(null);
 
-  // Year dropdown visibility
   const [yearDropdownVisible, setYearDropdownVisible] = useState(false);
 
-  // Stats (mock data for now)
+  const [toast, setToast] = useState<{
+    visible: boolean;
+    message: string;
+    success: boolean;
+  }>({
+    visible: false,
+    message: "",
+    success: true,
+  });
+
   const stats = {
-    snaps: 124,
+    snaps: totalSnaps,
     views: "14.5k",
     impact: "Top 5%",
   };
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (user?.id) {
+      fetchProfile();
+      fetchUserPhotos();
+    }
+  }, [user?.id]);
 
   const fetchProfile = async () => {
     setIsLoading(true);
     try {
       const token = await getToken();
-
       if (!token) {
-        // Fall back to Clerk user data if not authenticated
         if (user) {
           setProfile((prev) => ({
             ...prev,
@@ -113,20 +100,14 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
 
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/get-profile`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const rawText = await response.text();
-
-      if (!response.ok) {
-        throw new Error(rawText);
-      }
-
+      if (!response.ok) throw new Error(rawText);
       const data = JSON.parse(rawText);
 
-      if (response.ok && data.user) {
+      if (data.user) {
         setProfile({
           name: data.user.name || "",
           collegeName: data.user.collegeName || "",
@@ -135,19 +116,8 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
           profileImage: data.user.profileImage || null,
           bio: data.user.bio || "Chasing sunsets & finals",
         });
-      } else {
-        // Fall back to Clerk user data
-        if (user) {
-          setProfile((prev) => ({
-            ...prev,
-            name: user.firstName || user.username || "User",
-            profileImage: user.imageUrl || null,
-          }));
-        }
       }
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      // Fall back to Clerk user data on error
+    } catch {
       if (user) {
         setProfile((prev) => ({
           ...prev,
@@ -157,6 +127,27 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchUserPhotos = async () => {
+    if (!user?.id) return;
+    try {
+      setIsGalleryLoading(true);
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/photos/get-user-photos/${user.id}`,
+      );
+      const rawData: (string | string[])[] = await response.json();
+      const imageUrls: string[] = rawData.flatMap((u) =>
+        Array.isArray(u) ? u : [u],
+      );
+      setGalleryImages(imageUrls);
+      setTotalSnaps(imageUrls.length);
+    } catch {
+      setGalleryImages([]);
+      setTotalSnaps(0);
+    } finally {
+      setIsGalleryLoading(false);
     }
   };
 
@@ -178,10 +169,13 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
   };
 
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      Alert.alert("Permission Required", "Please allow access to your photo library.");
+      Alert.alert(
+        "Permission Required",
+        "Please allow access to your photo library.",
+      );
       return;
     }
 
@@ -198,43 +192,29 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
       const filename = uri.split("/").pop() || "profile.jpg";
       const match = /(\.(\w+))$/.exec(filename);
       const type = match ? `image/${match[2]}` : "image/jpeg";
-
-      setSelectedImage({
-        uri,
-        type,
-        name: filename,
-      });
+      setSelectedImage({ uri, type, name: filename });
     }
   };
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
-
     try {
       const token = await getToken();
-
       if (!token) {
         Alert.alert("Error", "Authentication required. Please sign in again.");
         return;
       }
 
       const formData = new FormData();
-
-      if (editForm.name !== profile.name) {
+      if (editForm.name !== profile.name)
         formData.append("name", editForm.name);
-      }
-      if (editForm.bio !== profile.bio) {
-        formData.append("bio", editForm.bio);
-      }
-      if (editForm.collegeName !== profile.collegeName) {
+      if (editForm.bio !== profile.bio) formData.append("bio", editForm.bio);
+      if (editForm.collegeName !== profile.collegeName)
         formData.append("collegeName", editForm.collegeName);
-      }
-      if (editForm.phoneNo !== profile.phoneNumber) {
+      if (editForm.phoneNo !== profile.phoneNumber)
         formData.append("phoneNo", editForm.phoneNo);
-      }
-      if (editForm.year !== profile.year) {
+      if (editForm.year !== profile.year)
         formData.append("year", editForm.year);
-      }
 
       if (selectedImage) {
         formData.append("profileImg", {
@@ -244,22 +224,17 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
         } as any);
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/profile-update`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/auth/profile-update`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
       const rawText = await response.text();
-
-      let data: any = {};
-      try {
-        data = rawText ? JSON.parse(rawText) : {};
-      } catch {
-        data = {};
-      }
+      const data = rawText ? JSON.parse(rawText) : {};
 
       if (response.ok) {
         setProfile((prev) => ({
@@ -273,23 +248,27 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
         }));
 
         closeEditModal();
-        Alert.alert("Success", "Profile updated successfully!");
+        setToast({
+          visible: true,
+          message: "Profile updated successfully",
+          success: true,
+        });
       } else {
-        Alert.alert("Error", data.message || "Failed to update profile.");
+        setToast({
+          visible: true,
+          message: "Failed to update profile",
+          success: false,
+        });
       }
-    } catch (error) {
-      console.error("Profile update error:", error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleSettingsPress = () => {
-    navigation.navigate("SettingsScreen");
+  const handleViewAllUploads = () => {
+    navigation.navigate("MyUploadsScreen");
   };
 
-  // ✅ Safety guard added
   if (isLoading || !profile) {
     return (
       <View style={styles.loadingContainer}>
@@ -299,21 +278,25 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
     );
   }
 
+  const handleSettingsPress = () => {
+    navigation.navigate("SettingsScreen");
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Header with Settings */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.settingsButton} onPress={handleSettingsPress}>
+        <TouchableOpacity
+          style={styles.settingsButton}
+          onPress={handleSettingsPress}
+        >
           <Ionicons name="settings-outline" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Profile Section */}
         <View style={styles.profileSection}>
-          {/* Profile Image */}
           <View style={styles.profileImageContainer}>
             {profile.profileImage ? (
               <Image
@@ -325,35 +308,42 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
                 <Ionicons name="person" size={50} color="#FF6B8A" />
               </View>
             )}
-            <TouchableOpacity style={styles.editImageButton} onPress={openEditModal}>
+            <TouchableOpacity
+              style={styles.editImageButton}
+              onPress={openEditModal}
+            >
               <Ionicons name="pencil" size={18} color="#fff" />
             </TouchableOpacity>
           </View>
 
-          {/* Name and College */}
           <View style={styles.nameContainer}>
-            <Text style={styles.userName}>{profile.name}</Text>
-            <Text style={styles.separator}>|</Text>
-            <Text style={styles.collegeName}>{profile.collegeName}</Text>
+            <Text style={styles.userName} numberOfLines={1}>
+              {profile.name}
+            </Text>
+            <Text style={styles.separator}> | </Text>
+            <Text style={styles.collegeName} numberOfLines={1}>
+              {profile.collegeName}
+            </Text>
           </View>
 
-          {/* Bio */}
           <Text style={styles.bio}>{profile.bio}</Text>
           <Text style={styles.bioSubtext}>Design Major • Photo Club Pres</Text>
 
-          {/* Class Badge */}
           <View style={styles.classBadge}>
-            <Text style={styles.classBadgeText}>{profile.year ? `${profile.year} Year` : "Year not set"}</Text>
+            <Text style={styles.classBadgeText}>
+              {profile.year ? `${profile.year} Year` : "Year not set"}
+            </Text>
           </View>
 
-          {/* Edit Profile Button */}
-          <TouchableOpacity style={styles.editProfileButton} onPress={openEditModal}>
+          <TouchableOpacity
+            style={styles.editProfileButton}
+            onPress={openEditModal}
+          >
             <Ionicons name="pencil-outline" size={18} color="#1A1A1A" />
             <Text style={styles.editProfileButtonText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Stats Section */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>{stats.snaps}</Text>
@@ -364,148 +354,187 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
             <Text style={styles.statLabel}>VIEWS</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={[styles.statNumber, styles.statHighlight]}>{stats.impact}</Text>
+            <Text style={[styles.statNumber, styles.statHighlight]}>
+              {stats.impact}
+            </Text>
             <Text style={styles.statLabel}>IMPACT</Text>
           </View>
         </View>
 
-        {/* Gallery Grid */}
         <View style={styles.galleryContainer}>
-          <View style={styles.galleryGrid}>
-            {mockGalleryImages.map((image) => (
-              <TouchableOpacity key={image.id} style={styles.galleryImageContainer}>
-                <Image
-                  source={{ uri: image.url }}
-                  style={styles.galleryImage}
-                  resizeMode="cover"
-                />
+          <View style={styles.galleryHeader}>
+            <Text style={styles.galleryTitle}>Recent uploads</Text>
+            {galleryImages.length > 0 && (
+              <TouchableOpacity
+                style={styles.viewAllButton}
+                onPress={handleViewAllUploads}
+              >
+                <Text style={styles.viewAllText}>View All</Text>
+                <Ionicons name="chevron-forward" size={16} color="#FF6B8A" />
               </TouchableOpacity>
-            ))}
+            )}
+          </View>
+
+          <View style={styles.galleryGrid}>
+            {isGalleryLoading ? (
+              <ActivityIndicator size="large" color="#FF6B8A" />
+            ) : galleryImages.slice(0, 6).length ? (
+              galleryImages.slice(0, 6).map((imageUrl, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.galleryImageContainer}
+                  onPress={handleViewAllUploads}
+                >
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.galleryImage}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.emptyGalleryText}>
+                No uploads yet. Start capturing memories!
+              </Text>
+            )}
           </View>
         </View>
       </ScrollView>
 
-      {/* Edit Profile Modal */}
       <Modal
         visible={isEditModalVisible}
         animationType="slide"
-        transparent={true}
+        transparent
         onRequestClose={closeEditModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Edit Profile</Text>
-              <TouchableOpacity style={styles.closeButton} onPress={closeEditModal}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={closeEditModal}
+              >
                 <Ionicons name="close" size={24} color="#333" />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Profile Image Picker */}
-            <TouchableOpacity
-              style={[styles.profileImageContainer, { alignSelf: "center", marginBottom: 24 }]}
-              onPress={pickImage}
-            >
-              {selectedImage ? (
-                <Image source={{ uri: selectedImage.uri }} style={styles.profileImage} />
-              ) : profile.profileImage ? (
-                <Image source={{ uri: profile.profileImage }} style={styles.profileImage} />
-              ) : (
-                <View style={styles.profileImagePlaceholder}>
-                  <Ionicons name="person" size={50} color="#FF6B8A" />
-                </View>
-              )}
-              <View style={styles.editImageButton}>
-                <Ionicons name="camera" size={18} color="#fff" />
-              </View>
-            </TouchableOpacity>
-
-            {/* Name Input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Name</Text>
-              <TextInput
-                style={styles.textInput}
-                value={editForm.name}
-                onChangeText={(text) => setEditForm((prev) => ({ ...prev, name: text }))}
-                placeholder="Enter your name"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            {/* Bio Input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Bio</Text>
-              <TextInput
-                style={[styles.textInput, { height: 80, textAlignVertical: "top" }]}
-                value={editForm.bio}
-                onChangeText={(text) => setEditForm((prev) => ({ ...prev, bio: text }))}
-                placeholder="Write something about yourself"
-                placeholderTextColor="#999"
-                multiline
-                numberOfLines={3}
-              />
-            </View>
-
-            {/* College Name Input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>College Name</Text>
-              <TextInput
-                style={styles.textInput}
-                value={editForm.collegeName}
-                onChangeText={(text) => setEditForm((prev) => ({ ...prev, collegeName: text }))}
-                placeholder="Enter college name"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            {/* Phone Number Input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Phone Number</Text>
-              <TextInput
-                style={styles.textInput}
-                value={editForm.phoneNo}
-                onChangeText={(text) => setEditForm((prev) => ({ ...prev, phoneNo: text }))}
-                placeholder="Enter phone number"
-                placeholderTextColor="#999"
-                keyboardType="phone-pad"
-              />
-            </View>
-
-            {/* Year Input */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Year</Text>
               <TouchableOpacity
-                style={styles.textInput}
-                onPress={() => setYearDropdownVisible(true)}
+                style={[
+                  styles.profileImageContainer,
+                  { alignSelf: "center", marginBottom: 24 },
+                ]}
+                onPress={pickImage}
               >
-                <Text style={{ color: editForm.year ? "#333" : "#999" }}>
-                  {editForm.year || "Select Year"}
-                </Text>
+                {selectedImage ? (
+                  <Image
+                    source={{ uri: selectedImage.uri }}
+                    style={styles.profileImage}
+                  />
+                ) : profile.profileImage ? (
+                  <Image
+                    source={{ uri: profile.profileImage }}
+                    style={styles.profileImage}
+                  />
+                ) : (
+                  <View style={styles.profileImagePlaceholder}>
+                    <Ionicons name="person" size={50} color="#FF6B8A" />
+                  </View>
+                )}
+                <View style={styles.editImageButton}>
+                  <Ionicons name="camera" size={18} color="#fff" />
+                </View>
               </TouchableOpacity>
-            </View>
 
-            {/* Save Button */}
-            <TouchableOpacity
-              style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
-              onPress={handleSaveProfile}
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.saveButtonText}>Save Changes</Text>
-              )}
-            </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Name</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={editForm.name}
+                  onChangeText={(t) => setEditForm((p) => ({ ...p, name: t }))}
+                  placeholder="Enter your name"
+                  placeholderTextColor="#999"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Bio</Text>
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    { height: 80, textAlignVertical: "top" },
+                  ]}
+                  value={editForm.bio}
+                  onChangeText={(t) => setEditForm((p) => ({ ...p, bio: t }))}
+                  placeholder="Write something about yourself"
+                  placeholderTextColor="#999"
+                  multiline
+                  numberOfLines={3}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>College Name</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={editForm.collegeName}
+                  onChangeText={(t) =>
+                    setEditForm((p) => ({ ...p, collegeName: t }))
+                  }
+                  placeholder="Enter college name"
+                  placeholderTextColor="#999"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Phone Number</Text>
+                <TextInput
+                  style={styles.textInput}
+                  value={editForm.phoneNo}
+                  onChangeText={(t) =>
+                    setEditForm((p) => ({ ...p, phoneNo: t }))
+                  }
+                  placeholder="Enter phone number"
+                  placeholderTextColor="#999"
+                  keyboardType="phone-pad"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Year</Text>
+                <TouchableOpacity
+                  style={styles.textInput}
+                  onPress={() => setYearDropdownVisible(true)}
+                >
+                  <Text style={{ color: editForm.year ? "#333" : "#999" }}>
+                    {editForm.year || "Select Year"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.saveButton,
+                  isSaving && styles.saveButtonDisabled,
+                ]}
+                onPress={handleSaveProfile}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.saveButtonText}>Save Changes</Text>
+                )}
+              </TouchableOpacity>
             </ScrollView>
           </View>
         </View>
       </Modal>
 
-      {/* Year Dropdown Modal */}
       <Modal
         visible={yearDropdownVisible}
-        transparent={true}
+        transparent
         animationType="fade"
         onRequestClose={() => setYearDropdownVisible(false)}
       >
@@ -514,13 +543,15 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
           activeOpacity={1}
           onPress={() => setYearDropdownVisible(false)}
         >
-          <View style={{
-            backgroundColor: "#fff",
-            borderRadius: 12,
-            padding: 8,
-            width: "80%",
-            maxHeight: 300,
-          }}>
+          <View
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: 12,
+              padding: 8,
+              width: "80%",
+              maxHeight: 300,
+            }}
+          >
             <ScrollView>
               {YEAR_OPTIONS.map((option) => (
                 <TouchableOpacity
@@ -534,14 +565,16 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
                     alignItems: "center",
                   }}
                   onPress={() => {
-                    setEditForm((prev) => ({ ...prev, year: option }));
+                    setEditForm((p) => ({ ...p, year: option }));
                     setYearDropdownVisible(false);
                   }}
                 >
-                  <Text style={{
-                    fontSize: 16,
-                    color: editForm.year === option ? "#FF6B8A" : "#333",
-                  }}>
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: editForm.year === option ? "#FF6B8A" : "#333",
+                    }}
+                  >
                     {option}
                   </Text>
                   {editForm.year === option && (
@@ -553,8 +586,14 @@ const ProfileScreen = ({ navigation }: ScreenProps<"ProfileScreen">) => {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        success={toast.success}
+        onHide={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
     </SafeAreaView>
   );
 };
-
 export default ProfileScreen;

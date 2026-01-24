@@ -1,6 +1,6 @@
 import User from "../models/User.js"
 import { createClerkClient } from "@clerk/backend"
-import {profileImageUploadToAzure, singleUploadToAzure} from "../utils/azure.js";
+import {deleteFromAzure, profileImageUploadToAzure, singleUploadToAzure} from "../utils/azure.js";
 
 const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
@@ -133,6 +133,10 @@ export const profileUpdate = async (req, res) => {
         // Handle profile image upload if provided
         if (req.file && req.file.buffer) {
             try {
+                if (user.profileImage) {
+                    console.log("Existing Profile Image exists. Deleting it.");
+                    deleteFromAzure(user.profileImage);
+                }
                 updateFields.profileImage = await profileImageUploadToAzure(req.file, clerkUserId);
             } catch (uploadError) {
                 console.error("Error uploading profile image:", uploadError);
