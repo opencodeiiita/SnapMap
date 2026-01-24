@@ -8,7 +8,10 @@ import {
   StatusBar,
   Image,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { Dimensions } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
@@ -18,12 +21,11 @@ import { useUser } from "@clerk/clerk-expo";
 import HomeStyle from "../styles/HomeStyle";
 import BottomNavigation from "../navigation/BottomNavigation";
 import Constants from "expo-constants";
+import { API_BASE_URL } from "../apiConfig";
 import { useProfile } from "../context/ProfileContext";
 
 const styles = HomeStyle;
 
-const API_BASE_URL =
-  Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 const DEFAULT_RADIUS_METERS = 300;
 
 type Coordinates = {
@@ -58,7 +60,7 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -101,7 +103,7 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
           };
         } else {
           console.warn(
-            "Location permission not granted, using default location for nearby photos"
+            "Location permission not granted, using default location for nearby photos",
           );
         }
       } catch (error) {
@@ -153,7 +155,11 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
                 style={styles.profileImage}
               />
             ) : (
-              <Ionicons name="person-circle-outline" size={28} color="#f43f5e" />
+              <Ionicons
+                name="person-circle-outline"
+                size={28}
+                color="#f43f5e"
+              />
             )}
           </TouchableOpacity>
         </View>
@@ -225,11 +231,7 @@ const HomeScreen = ({ navigation }: ScreenProps<"HomeScreen">) => {
           onPress={() => navigation.navigate("MapScreen")}
         >
           <View style={styles.fullMapIconContainer}>
-            <MaterialCommunityIcons
-              name="map"
-              size={24}
-              color="#FFFFFF"
-            />
+            <MaterialCommunityIcons name="map" size={24} color="#FFFFFF" />
           </View>
           <View style={styles.fullMapTextContainer}>
             <Text style={styles.fullMapSubtext}>Tap to explore</Text>
