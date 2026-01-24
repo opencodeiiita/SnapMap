@@ -161,6 +161,28 @@ const ProfileStyle = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 10,
   },
+  galleryHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    marginBottom: 8,
+  },
+  galleryTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1A1A1A",
+  },
+  viewAllButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FF6B8A",
+  },
   galleryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -176,6 +198,12 @@ const ProfileStyle = StyleSheet.create({
   galleryImage: {
     width: "100%",
     height: "100%",
+  },
+  emptyGalleryText: {
+    width: "100%",
+    textAlign: "center",
+    color: "#999",
+    paddingVertical: 12,
   },
   // Edit Profile Modal Styles
   modalOverlay: {

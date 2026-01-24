@@ -42,6 +42,9 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [photos, setPhotos] = useState<PhotoMarker[]>([]);
 
+  const singlePhoto = require("../assets/images/single-photo-icon.png");
+  const multiPhoto = require("../assets/images/multi-photo-icon.png");
+
   const { profile } = useProfile();
   const { user } = useUser();
 
@@ -149,12 +152,13 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
               latitude: photo.latitude,
               longitude: photo.longitude,
             }}
-            image={require("../assets/images/b.png")}
+            image={photo.imageURL.length === 1 ? singlePhoto : multiPhoto}
             onPress={() => navigation.navigate("SnapScreen", {
               imageURL: photo.imageURL,
-              caption: photo.caption
+              caption: photo.caption,
+              latitude: photo.latitude,
+              longitude: photo.longitude,
             })}
-            
 
             />
           </View>
