@@ -16,13 +16,11 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import Constants from "expo-constants";
+import { API_BASE_URL } from "../apiConfig";
 import type { ScreenProps } from "../types";
 import ProfileStyle from "../styles/ProfileStyle";
 import { useProfile } from "../context/ProfileContext";
 import Toast from "../components/Toast";
-
-const API_BASE_URL =
-  Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 
 const styles = ProfileStyle;
 
