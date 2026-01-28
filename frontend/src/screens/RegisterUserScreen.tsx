@@ -14,7 +14,6 @@ import { useUser, useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenProps } from "../types";
 import Constants from "expo-constants";
-import { API_BASE_URL } from "../apiConfig";
 import LocationIcon from "../assets/icons/LocationIcon";
 import PersonIcon from "../assets/icons/PersonIcon";
 import Toast from "../components/Toast";
@@ -25,11 +24,13 @@ const GENDER_OPTIONS = ["male", "female", "others"];
 // Year options - frontend enum
 const YEAR_OPTIONS = ["1st", "2nd", "3rd", "4th", "5th", "Graduate", "Other"];
 
+// Use API base URL from environment variable
+export const API_BASE_URL =
+  Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
+
 const styles = RegisterUserStyle;
 
-const RegisterUserScreen = ({
-  navigation,
-}: ScreenProps<"RegisterUserScreen">) => {
+const RegisterUserScreen = ({ navigation }: ScreenProps<"RegisterUserScreen">) => {
   const { user } = useUser();
   const { getToken } = useAuth();
 
@@ -75,7 +76,7 @@ const RegisterUserScreen = ({
     if (!validateForm()) {
       Alert.alert(
         "Validation Error",
-        "Please fill in all required fields correctly",
+        "Please fill in all required fields correctly"
       );
       return;
     }
@@ -102,7 +103,7 @@ const RegisterUserScreen = ({
       if (!token) {
         Alert.alert(
           "Error",
-          "Authentication token not available. Please sign in again.",
+          "Authentication token not available. Please sign in again."
         );
         setIsSubmitting(false);
         return;
@@ -165,8 +166,7 @@ const RegisterUserScreen = ({
         <View style={styles.header}>
           <Text style={styles.title}>Join SnapMap</Text>
           <Text style={styles.subtitle}>
-            Connect with your campus{"\n"}community and see what's{"\n"}trending
-            nearby
+            Connect with your campus{"\n"}community and see what's{"\n"}trending nearby
           </Text>
         </View>
       </View>
@@ -253,6 +253,7 @@ const RegisterUserScreen = ({
         success={false}
         onHide={() => setShowErrorToast(false)}
       />
+
     </ScrollView>
   );
 };

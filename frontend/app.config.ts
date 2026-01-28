@@ -1,3 +1,8 @@
+import getLocalIPAddress from "./getLocalIPAddress.ts";
+import { API_BASE_URL } from "./src/screens/RegisterUserScreen.tsx";
+
+const ip = getLocalIPAddress();
+
 export default {
   name: "Snap Map",
   slug: "snap-map",
@@ -13,9 +18,8 @@ export default {
     bundleIdentifier: "com.snapmap.app",
     infoPlist: {
       NSCameraUsageDescription: "Allow Snap Map to access your camera.",
-      NSLocationWhenInUseUsageDescription:
-        "Allow Snap Map to access your location while using the app.",
-    },
+      NSLocationWhenInUseUsageDescription: "Allow Snap Map to access your location while using the app."
+    }
   },
 
   android: {
@@ -26,8 +30,8 @@ export default {
       foregroundImage: "./src/assets/images/icon.png",
       backgroundColor: "#E6F4FE",
       backgroundImage: "./src/assets/images/android-icon-background.png",
-      monochromeImage: "./src/assets/images/android-icon-monochrome.png",
-    },
+      monochromeImage: "./src/assets/images/android-icon-monochrome.png"
+    }
   },
 
   plugins: [
@@ -38,16 +42,17 @@ export default {
         imageWidth: 200,
         resizeMode: "contain",
         backgroundColor: "#ffffff",
-        dark: { backgroundColor: "#000000" },
-      },
-    ],
+        dark: { backgroundColor: "#000000" }
+      }
+    ]
   ],
 
   experiments: {
-    reactCompiler: true,
+    reactCompiler: true
   },
 
   extra: {
-    API_BASE_URL: "https://snapmap.onrender.com"
-  },
+    // API_BASE_URL: `https://snapmap.onrender.com`
+    API_BASE_URL: `http://${ip}:5000`
+  }
 };
