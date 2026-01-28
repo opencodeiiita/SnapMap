@@ -10,7 +10,6 @@ import {
   Dimensions,
 } from "react-native";
 import Constants from "expo-constants";
-import { API_BASE_URL } from "../apiConfig";
 import { useAuth } from "@clerk/clerk-expo";
 import type { ScreenProps } from "../types";
 import UploadConfirmationStyle from "../styles/UploadConfirmationStyle";
@@ -18,6 +17,9 @@ import Toast from "../components/Toast";
 
 const styles = UploadConfirmationStyle;
 const { width } = Dimensions.get("window");
+
+const API_BASE_URL =
+  Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 
 const UploadConfirmationScreen = ({
   navigation,
@@ -120,7 +122,9 @@ const UploadConfirmationScreen = ({
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
-        <Text style={styles.header}>New Post ({photosToUpload.length})</Text>
+        <Text style={styles.header}>
+          New Post ({photosToUpload.length})
+        </Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -150,6 +154,7 @@ const UploadConfirmationScreen = ({
               </View>
             </View>
           ))}
+
         </ScrollView>
       </View>
 
@@ -171,9 +176,8 @@ const UploadConfirmationScreen = ({
         <Text style={styles.primaryButtonText}>
           {isUploading
             ? "Uploading..."
-            : `Post ${photosToUpload.length} Photo${
-                photosToUpload.length > 1 ? "s" : ""
-              } >`}
+            : `Post ${photosToUpload.length} Photo${photosToUpload.length > 1 ? "s" : ""
+            } >`}
         </Text>
       </TouchableOpacity>
 

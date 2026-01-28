@@ -15,13 +15,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MapStyle from "../styles/MapStyle";
 import BottomNavigation from "../navigation/BottomNavigation";
 import Constants from "expo-constants";
-import { API_BASE_URL } from "../apiConfig";
 import { useProfile } from "../context/ProfileContext";
 import { useUser } from "@clerk/clerk-expo";
 import SnapScreen from "./SnapScreen";
 
 const styles = MapStyle;
 
+const API_BASE_URL =
+  Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 const DEFAULT_RADIUS_METERS = 300;
 
 type Coordinates = {
@@ -72,7 +73,7 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (!response.ok) {
@@ -143,24 +144,25 @@ const MapScreen = ({ navigation }: ScreenProps<"MapScreen">) => {
         showsMyLocationButton
       >
         {photos.map((photo, idx) => (
-          <View key={idx}>
+          <View
+          key={idx}>
             <Marker
-              key={photo.id}
-              coordinate={{
-                latitude: photo.latitude,
-                longitude: photo.longitude,
-              }}
-              image={photo.imageURL.length === 1 ? singlePhoto : multiPhoto}
-              onPress={() =>
-                navigation.navigate("SnapScreen", {
-                  imageURL: photo.imageURL,
-                  caption: photo.caption,
-                  latitude: photo.latitude,
-                  longitude: photo.longitude,
-                })
-              }
+            key={photo.id}
+            coordinate={{
+              latitude: photo.latitude,
+              longitude: photo.longitude,
+            }}
+            image={photo.imageURL.length === 1 ? singlePhoto : multiPhoto}
+            onPress={() => navigation.navigate("SnapScreen", {
+              imageURL: photo.imageURL,
+              caption: photo.caption,
+              latitude: photo.latitude,
+              longitude: photo.longitude,
+            })}
+
             />
           </View>
+          
         ))}
       </MapView>
 

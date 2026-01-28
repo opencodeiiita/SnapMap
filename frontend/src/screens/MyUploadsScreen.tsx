@@ -12,7 +12,6 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
-import { API_BASE_URL } from "../apiConfig";
 import { useUser, useAuth } from "@clerk/clerk-expo";
 import { myUploadsStyles } from "../styles/MyUploadsStyle";
 import { useProfile } from "../context/ProfileContext";
@@ -22,6 +21,9 @@ import {
   UserUpload,
 } from "../utils/photoHelpers";
 import Toast from "../components/Toast";
+
+const API_BASE_URL =
+  Constants.expoConfig?.extra?.API_BASE_URL ?? "http://localhost:5000";
 
 type FilterKey = "All" | "Events" | "Places" | "Recent";
 const filterOptions: { key: FilterKey; label: string }[] = [
@@ -53,6 +55,7 @@ const MyUploadsScreen: React.FC = () => {
     success: true,
   });
 
+
   useEffect(() => {
     if (user?.id) {
       fetchUploads(user.id);
@@ -63,7 +66,7 @@ const MyUploadsScreen: React.FC = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/v1/photos/get-user-photos/${clerkId}`,
+        `${API_BASE_URL}/api/v1/photos/get-user-photos/${clerkId}`
       );
       const rawData = await response.json();
       const normalized = normalizeUserUploads(rawData);
@@ -126,10 +129,13 @@ const MyUploadsScreen: React.FC = () => {
     }
   };
 
+
   const filteredUploads = useMemo(() => {
     let list = uploads;
     if (selectedFilter === "Events") {
-      list = uploads.filter((u) => u.badge === "live" || u.badge === "ended");
+      list = uploads.filter(
+        (u) => u.badge === "live" || u.badge === "ended"
+      );
     } else if (selectedFilter === "Recent") {
       list = [...uploads].sort((a, b) => {
         const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
@@ -141,22 +147,19 @@ const MyUploadsScreen: React.FC = () => {
   }, [uploads, selectedFilter]);
 
   const groupedUploads = useMemo(() => {
-    return filteredUploads.reduce(
-      (acc, upload) => {
-        const section =
-          upload.badge === "live" || upload.badge === "ended"
-            ? "THIS WEEK"
-            : "RECENT";
-        if (!acc[section]) acc[section] = [];
-        acc[section].push(upload);
-        return acc;
-      },
-      {} as Record<string, UserUpload[]>,
-    );
+    return filteredUploads.reduce((acc, upload) => {
+      const section =
+        upload.badge === "live" || upload.badge === "ended"
+          ? "THIS WEEK"
+          : "RECENT";
+      if (!acc[section]) acc[section] = [];
+      acc[section].push(upload);
+      return acc;
+    }, {} as Record<string, UserUpload[]>);
   }, [filteredUploads]);
 
   const eventsJoined = uploads.filter(
-    (upload) => upload.badge === "live" || upload.badge === "ended",
+    (upload) => upload.badge === "live" || upload.badge === "ended"
   ).length;
 
   // ---------------- SLIDER ----------------
@@ -172,7 +175,7 @@ const MyUploadsScreen: React.FC = () => {
   const goPrev = () => {
     if (filteredUploads.length <= 1) return;
     setActiveIndex((prev) =>
-      prev === 0 ? filteredUploads.length - 1 : prev - 1,
+      prev === 0 ? filteredUploads.length - 1 : prev - 1
     );
   };
 
@@ -180,6 +183,7 @@ const MyUploadsScreen: React.FC = () => {
     if (filteredUploads.length <= 1) return;
     setActiveIndex((prev) => (prev + 1) % filteredUploads.length);
   };
+
 
   const currentUpload = filteredUploads[activeIndex] || filteredUploads[0];
   const sliderCaption =
@@ -191,7 +195,11 @@ const MyUploadsScreen: React.FC = () => {
     const label =
       badge === "live" ? "LIVE" : badge === "ended" ? "ENDED" : "FEATURED";
     const background =
-      badge === "live" ? "#FFEDEE" : badge === "ended" ? "#1A1A1A" : "#FFF7E0";
+      badge === "live"
+        ? "#FFEDEE"
+        : badge === "ended"
+          ? "#1A1A1A"
+          : "#FFF7E0";
     const color =
       badge === "ended" ? "#fff" : badge === "live" ? "#FF4D6D" : "#A87D2D";
 
@@ -310,7 +318,11 @@ const MyUploadsScreen: React.FC = () => {
                         <Text style={myUploadsStyles.uploadTimestamp}>
                           {formatTimestamp(upload.timestamp)}
                         </Text>
-                        <View style={myUploadsStyles.uploadLocationContainer}>
+                        <View
+                          style={
+                            myUploadsStyles.uploadLocationContainer
+                          }
+                        >
                           <Ionicons
                             name="location-outline"
                             size={14}
@@ -391,7 +403,9 @@ const MyUploadsScreen: React.FC = () => {
             </View>
 
             <View style={myUploadsStyles.sliderMeta}>
-              <Text style={myUploadsStyles.sliderCaption}>{sliderCaption}</Text>
+              <Text style={myUploadsStyles.sliderCaption}>
+                {sliderCaption}
+              </Text>
               <Text style={myUploadsStyles.sliderTimestamp}>
                 {sliderTimestamp}
               </Text>
