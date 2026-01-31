@@ -1,0 +1,4 @@
+This repo made me learn so many things specially app development for which i had a very vague idea also things like kafka
+of which i had no idea.
+One of the best repos of OpenCode.
+Thank you so much Abdul for helping out with the issues patiently throughout the event u were a great maintainer 💙.
