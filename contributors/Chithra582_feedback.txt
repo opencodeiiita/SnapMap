@@ -1,0 +1,8 @@
+Working on SnapMap was a fun and meaningful experience. It felt like a real project where 
+contributions actually mattered. I learned a lot by exploring the codebase, fixing issues, and 
+understanding how things connect.
+
+Some parts were tricky at first and took time to figure out, but that challenge made the experience
+better. Overall, the repo was well-managed, and contributing here was genuinely rewarding.
+
+Glad I got the chance to contribute. Looking forward to future versions!
